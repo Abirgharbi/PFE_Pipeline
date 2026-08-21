@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-05T10:00:00.000Z" agent="STM32Cube PFE" version="21.0.0">
+  <diagram id="tech-ingestion" name="Technical - Ingestion Stage Detail">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Stage 1: Ingestion - Technical Detail" style="text;html=1;align=center;fontSize=16;fontStyle=1;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="600" y="10" width="400" height="30" as="geometry" />
+        </mxCell>
+        <!-- Config -->
+        <mxCell id="config" value="shared/config/config.json&#xa;&#xa;{&#xa;  &quot;repos&quot;: [&quot;STM32CubeH7&quot;, ...],&#xa;  &quot;github_token&quot;: &quot;...&quot;,&#xa;  &quot;base_url&quot;: &quot;https://api.github.com&quot;&#xa;}" style="shape=document;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=0.1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=10;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="300" height="130" as="geometry" />
+        </mxCell>
+        <!-- fetch_issues.py -->
+        <mxCell id="fetch_issues" value="fetch_issues.py&#xa;&#xa;• GET /repos/{owner}/{repo}/issues&#xa;• Pagination (100/page)&#xa;• Includes comments&#xa;• State: all (open+closed)&#xa;• Output: datasets/01_raw/&#xa;  raw_issues_{repo}.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="40" y="240" width="240" height="150" as="geometry" />
+        </mxCell>
+        <!-- fetch_prs.py -->
+        <mxCell id="fetch_prs" value="fetch_prs.py&#xa;&#xa;• GET /repos/{owner}/{repo}/pulls&#xa;• State: all&#xa;• Includes diff stats&#xa;• Output: datasets/01_raw/&#xa;  raw_prs_{repo}.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="320" y="240" width="240" height="150" as="geometry" />
+        </mxCell>
+        <!-- fetch_commits.py -->
+        <mxCell id="fetch_commits" value="fetch_commits.py&#xa;&#xa;• GET /repos/{owner}/{repo}/commits&#xa;• Full commit message&#xa;• Author/date metadata&#xa;• Output: datasets/01_raw/&#xa;  raw_commits_{repo}.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="600" y="240" width="240" height="150" as="geometry" />
+        </mxCell>
+        <!-- fetch_issue_pr_commit_links.py -->
+        <mxCell id="fetch_links" value="fetch_issue_pr_commit_links.py&#xa;&#xa;• Cross-reference issues↔PRs↔commits&#xa;• Timeline events API&#xa;• PR merge commits&#xa;• Output: datasets/01_raw/&#xa;  issue_pr_commit_links_{repo}.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="240" width="260" height="150" as="geometry" />
+        </mxCell>
+        <!-- repo_sync_service.py -->
+        <mxCell id="repo_sync" value="repo_sync_service.py&#xa;&#xa;• git clone --depth 1&#xa;• Stores in GitHub_repos/&#xa;• Supports branch selection&#xa;• Used for file content fetch" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eceff1;strokeColor=#546e7a;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="240" width="240" height="150" as="geometry" />
+        </mxCell>
+        <!-- fetch_files.py -->
+        <mxCell id="fetch_files" value="fetch_files.py&#xa;&#xa;• Reads local cloned repos&#xa;• Collects: README.md, Release_Notes.html,&#xa;  .c/.h source files, BSP docs&#xa;• file_collect_service.py&#xa;• pdf_figure_service.py (optional)&#xa;• Output: datasets/01_raw/&#xa;  raw_files_{repo}.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="440" width="260" height="170" as="geometry" />
+        </mxCell>
+        <!-- Output datasets -->
+        <mxCell id="output_box" value="datasets/01_raw/&#xa;&#xa;├── raw_issues_stm32cubef4.json&#xa;├── raw_prs_stm32cubef4.json&#xa;├── raw_commits_stm32cubef4.json&#xa;├── issue_pr_commit_links_stm32cubef4.json&#xa;├── raw_files_stm32cubef4.json&#xa;└── (same for each configured repo)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=15;fillColor=#e8eaf6;strokeColor=#283593;fontSize=10;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=20;" vertex="1" parent="1">
+          <mxGeometry x="400" y="500" width="350" height="160" as="geometry" />
+        </mxCell>
+        <!-- github_service.py -->
+        <mxCell id="gh_svc" value="github_service.py&#xa;&#xa;• Rate limit handling&#xa;• Retry logic&#xa;• Token auth&#xa;• Pagination helper" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#999;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="500" width="200" height="110" as="geometry" />
+        </mxCell>
+        <!-- Arrows -->
+        <mxCell id="ac1" style="strokeColor=#666;strokeWidth=1;" edge="1" source="config" target="fetch_issues" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac2" style="strokeColor=#666;strokeWidth=1;" edge="1" source="config" target="fetch_prs" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac3" style="strokeColor=#666;strokeWidth=1;" edge="1" source="config" target="fetch_commits" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ac4" style="strokeColor=#666;strokeWidth=1;" edge="1" source="config" target="fetch_links" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ao1" style="strokeColor=#283593;strokeWidth=2;" edge="1" source="fetch_issues" target="output_box" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ao2" style="strokeColor=#283593;strokeWidth=2;" edge="1" source="fetch_prs" target="output_box" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ao3" style="strokeColor=#283593;strokeWidth=2;" edge="1" source="fetch_commits" target="output_box" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ao4" style="strokeColor=#283593;strokeWidth=2;" edge="1" source="fetch_links" target="output_box" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ar1" style="strokeColor=#546e7a;strokeWidth=2;" edge="1" source="repo_sync" target="fetch_files" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

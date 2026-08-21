@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-05T10:00:00.000Z" agent="STM32Cube PFE" version="21.0.0">
+  <diagram id="delivery-kb" name="Delivery &amp; KB Upload Architecture">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <!-- Title -->
+        <mxCell id="title" value="ST-Ready Delivery &amp; KB Upload Architecture" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;fontStyle=1;fontColor=#1a237e;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        <!-- Delivery Outputs -->
+        <mxCell id="group1" value="ST-Ready Delivery Outputs (per series)" style="swimlane;startSize=30;fillColor=#e8eaf6;strokeColor=#283593;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="600" height="360" as="geometry" />
+        </mxCell>
+        <mxCell id="issues" value="Issues JSON&#xa;st_ready_issues_&lt;repo&gt;.json&#xa;&#xa;• Structured issue cards&#xa;• Root cause / Fix / Constraints&#xa;• Keywords, labels, severity" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="group1">
+          <mxGeometry x="20" y="45" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="files" value="Files JSON&#xa;st_ready_files_&lt;repo&gt;.json&#xa;&#xa;• README, Release Notes&#xa;• Technical content chunks&#xa;• Board/component metadata" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="group1">
+          <mxGeometry x="310" y="45" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="resolver" value="Resolver Cases JSON&#xa;st_ready_resolver_cases_&lt;repo&gt;.json&#xa;&#xa;• Issue → PR → Commit chain&#xa;• Changed files evidence&#xa;• Resolution confidence score" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1f5fe;strokeColor=#0277bd;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="group1">
+          <mxGeometry x="20" y="170" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="diagnostic" value="Diagnostic Cards JSON&#xa;st_ready_diagnostic_cards_&lt;repo&gt;.json&#xa;&#xa;• Query aliases&#xa;• Keyword anchors&#xa;• Evidence references&#xa;• Structured diagnosis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=10;align=left;spacingLeft=8;" vertex="1" parent="group1">
+          <mxGeometry x="310" y="170" width="260" height="100" as="geometry" />
+        </mxCell>
+        <!-- Alfred -->
+        <mxCell id="alfred" value="Alfred Vision AI&#xa;Image → Text enrichment" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;fontSize=11;fontStyle=1;" vertex="1" parent="group1">
+          <mxGeometry x="140" y="295" width="300" height="45" as="geometry" />
+        </mxCell>
+        <!-- Series Organization -->
+        <mxCell id="series_org" value="by_series/ Organization" style="swimlane;startSize=25;fillColor=#f5f5f5;strokeColor=#616161;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="470" width="600" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="h7" value="stm32cubeh7/&#xa;├── issues_json/&#xa;├── files_json/&#xa;├── resolver_cases_json/&#xa;├── diagnostic_cards_json/&#xa;└── drivers/&#xa;    ├── stm32h7xx-hal-driver/&#xa;    ├── cmsis_device_h7/&#xa;    └── 10x BSP repos/" style="text;html=1;align=left;verticalAlign=top;fillColor=#fff;strokeColor=#bbb;rounded=1;fontSize=9;fontFamily=Courier New;" vertex="1" parent="series_org">
+          <mxGeometry x="10" y="30" width="180" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="f4" value="stm32cubef4/&#xa;├── issues_json/&#xa;├── files_json/&#xa;├── resolver_cases_json/&#xa;├── diagnostic_cards_json/&#xa;└── drivers/&#xa;    ├── stm32f4xx-hal-driver/&#xa;    ├── cmsis_device_f4/&#xa;    └── 13x BSP repos/" style="text;html=1;align=left;verticalAlign=top;fillColor=#fff;strokeColor=#bbb;rounded=1;fontSize=9;fontFamily=Courier New;" vertex="1" parent="series_org">
+          <mxGeometry x="200" y="30" width="180" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="others" value="stm32cubeh5/ (5 drivers)&#xa;stm32cubeu5/ (7 drivers)&#xa;stm32cubewl/ (4 drivers)&#xa;&#xa;Same structure for&#xa;each series" style="text;html=1;align=left;verticalAlign=top;fillColor=#fff;strokeColor=#bbb;rounded=1;fontSize=9;fontFamily=Courier New;" vertex="1" parent="series_org">
+          <mxGeometry x="400" y="30" width="180" height="155" as="geometry" />
+        </mxCell>
+        <!-- KB Upload -->
+        <mxCell id="upload_group" value="KB Upload (Add_Data_Source_Files.py)" style="swimlane;startSize=25;fillColor=#e8eaf6;strokeColor=#283593;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="80" width="380" height="590" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="ST AI Bridge API&#xa;https://api-ai-bridge.st.com&#xa;KB #793" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=15;fillColor=#c5cae9;strokeColor=#283593;fontSize=11;fontStyle=1;" vertex="1" parent="upload_group">
+          <mxGeometry x="100" y="35" width="180" height="80" as="geometry" />
+        </mxCell>
+        <!-- Datasources table -->
+        <mxCell id="ds_table" value="&lt;table style='font-size:10px;border-collapse:collapse;'&gt;&lt;tr style='background:#283593;color:white;'&gt;&lt;th style='padding:4px;'&gt;Series&lt;/th&gt;&lt;th&gt;Issues&lt;/th&gt;&lt;th&gt;Files&lt;/th&gt;&lt;th&gt;Resolver&lt;/th&gt;&lt;th&gt;Diag&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:3px;'&gt;F4&lt;/td&gt;&lt;td&gt;#28099&lt;/td&gt;&lt;td&gt;#28103&lt;/td&gt;&lt;td&gt;#28118&lt;/td&gt;&lt;td&gt;#28122&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f5f5;'&gt;&lt;td style='padding:3px;'&gt;H5&lt;/td&gt;&lt;td&gt;#28158&lt;/td&gt;&lt;td&gt;#28163&lt;/td&gt;&lt;td&gt;#28164&lt;/td&gt;&lt;td&gt;#28165&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td style='padding:3px;'&gt;U5&lt;/td&gt;&lt;td&gt;#28167&lt;/td&gt;&lt;td&gt;#28168&lt;/td&gt;&lt;td&gt;#28244&lt;/td&gt;&lt;td&gt;#28170&lt;/td&gt;&lt;/tr&gt;&lt;tr style='background:#f5f5f5;'&gt;&lt;td style='padding:3px;'&gt;WL&lt;/td&gt;&lt;td&gt;#28171&lt;/td&gt;&lt;td&gt;#28172&lt;/td&gt;&lt;td&gt;#28245&lt;/td&gt;&lt;td&gt;#28173&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="text;html=1;align=center;verticalAlign=middle;strokeColor=#666;fillColor=#fff;rounded=1;" vertex="1" parent="upload_group">
+          <mxGeometry x="30" y="140" width="320" height="120" as="geometry" />
+        </mxCell>
+        <!-- Upload Features -->
+        <mxCell id="features" value="Upload Features:&#xa;&#xa;• --json-split-size 1000&#xa;  (auto-splits &gt;25MB files)&#xa;• --empty-json-policy skip&#xa;• Processor: JSON&#xa;• processorParams with&#xa;  label/externalURL/rootTagPath&#xa;• Auth: mdrf_st_github_analyzer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#999;fontSize=10;align=left;spacingLeft=10;verticalAlign=top;spacingTop=5;" vertex="1" parent="upload_group">
+          <mxGeometry x="30" y="280" width="320" height="150" as="geometry" />
+        </mxCell>
+        <!-- Persona Config -->
+        <mxCell id="persona_cfg" value="Persona: ST GitHub Analyzer&#xa;&#xa;Tool: ST-GitHub-Analyzer-Unstructured&#xa;Search: Hybrid&#xa;Semantic threshold: 0.55&#xa;Semantic max docs: 20&#xa;Full-text max docs: 12" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#b2dfdb;strokeColor=#00695c;fontSize=10;align=left;spacingLeft=10;verticalAlign=top;spacingTop=5;fontStyle=1;" vertex="1" parent="upload_group">
+          <mxGeometry x="30" y="450" width="320" height="120" as="geometry" />
+        </mxCell>
+        <!-- Arrow delivery to upload -->
+        <mxCell id="arr_upload" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#283593;strokeWidth=2;" edge="1" source="group1" target="upload_group" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

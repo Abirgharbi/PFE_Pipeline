@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-05T10:00:00.000Z" agent="STM32Cube PFE" version="21.0.0">
+  <diagram id="tech-chunking" name="Technical - Chunking V2 Strategy">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Stage 5: Chunking V2 - Strategy &amp; Configuration" style="text;html=1;align=center;fontSize=16;fontStyle=1;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="500" height="30" as="geometry" />
+        </mxCell>
+        <!-- Issues chunking -->
+        <mxCell id="issues_chunk" value="docs_to_chunks_issues_v2.py" style="swimlane;startSize=25;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="600" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="ic_input" value="Input: docs_issues_{repo}_v2_sim.json" style="shape=document;whiteSpace=wrap;html=1;size=0.1;fillColor=#eceff1;strokeColor=#546e7a;fontSize=10;" vertex="1" parent="issues_chunk">
+          <mxGeometry x="20" y="35" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ic_strategy" value="Chunking Strategy: PARAGRAPH-BASED&#xa;&#xa;1. Split document text by double-newline (paragraphs)&#xa;2. Accumulate paragraphs until token limit reached&#xa;3. Parameters:&#xa;   • max_chunk_size = 512 tokens&#xa;   • overlap = 50 tokens&#xa;   • min_chunk_size = 50 tokens (discard smaller)&#xa;&#xa;4. Each chunk inherits parent metadata:&#xa;   issue_number, repo, layer, component, board,&#xa;   severity, issue_kind, keywords[]&#xa;&#xa;5. Add chunk-specific fields:&#xa;   • chunk_index (0-based position)&#xa;   • chunk_total (total chunks for this doc)&#xa;   • chunk_type: &quot;issue_body&quot; | &quot;comment&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#e65100;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="issues_chunk">
+          <mxGeometry x="20" y="85" width="560" height="220" as="geometry" />
+        </mxCell>
+        <!-- Files chunking -->
+        <mxCell id="files_chunk" value="docs_to_chunks_files_v2.py" style="swimlane;startSize=25;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="420" width="600" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="fc_input" value="Input: docs_files_{repo}_v2.json" style="shape=document;whiteSpace=wrap;html=1;size=0.1;fillColor=#eceff1;strokeColor=#546e7a;fontSize=10;" vertex="1" parent="files_chunk">
+          <mxGeometry x="20" y="35" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="fc_strategy" value="Chunking Strategy: SECTION-BASED&#xa;&#xa;1. For README/Release Notes:&#xa;   • Split by Markdown headers (##, ###)&#xa;   • Each section = 1 chunk (if ≤ 512 tokens)&#xa;   • Oversized sections get paragraph-split&#xa;&#xa;2. For C/H source files:&#xa;   • Split by function boundaries&#xa;   • Include function signature in each chunk&#xa;&#xa;3. Parameters:&#xa;   • max_chunk_size = 512 tokens&#xa;   • overlap = 50 tokens (between sections)&#xa;   • preserve_headers = true&#xa;&#xa;4. Metadata inherited:&#xa;   file_type, board, component, example_name&#xa;&#xa;5. Chunk-specific: chunk_index, section_title" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#2e7d32;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="files_chunk">
+          <mxGeometry x="20" y="85" width="560" height="220" as="geometry" />
+        </mxCell>
+        <!-- Output comparison -->
+        <mxCell id="output_compare" value="Output Comparison&#xa;&#xa;┌────────────────────────────────────────┐&#xa;│ chunks_issues_{repo}_v2.json           │&#xa;│ • ~3x document count vs input          │&#xa;│ • avg chunk: 280 tokens                │&#xa;│ • 95th percentile: 490 tokens          │&#xa;└────────────────────────────────────────┘&#xa;&#xa;┌────────────────────────────────────────┐&#xa;│ chunks_files_{repo}_v2.json            │&#xa;│ • ~5x document count vs input          │&#xa;│ • avg chunk: 320 tokens                │&#xa;│ • 95th percentile: 500 tokens          │&#xa;└────────────────────────────────────────┘" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#283593;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="720" y="100" width="380" height="280" as="geometry" />
+        </mxCell>
+        <!-- Why these parameters -->
+        <mxCell id="rationale" value="Design Rationale&#xa;&#xa;512 tokens chosen because:&#xa;• ST AI Bridge semantic search window = 512&#xa;• Larger chunks → lower precision&#xa;• Smaller chunks → lost context&#xa;&#xa;50-token overlap because:&#xa;• Ensures sentence continuity at boundaries&#xa;• ~1-2 sentences of shared context&#xa;• Prevents &quot;split mid-thought&quot; retrievals&#xa;&#xa;Paragraph vs Section:&#xa;• Issues = free-form text → paragraph split&#xa;• Files = structured docs → section split" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="720" y="420" width="380" height="280" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,140 @@
+<mxfile host="app.diagrams.net" modified="2026-06-09T15:00:00.000Z" agent="copilot" version="24.0.0">
+  <diagram id="cicd-automation" name="GitHub Actions CI/CD">
+    <mxGraphModel dx="1422" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;GitHub Actions CI/CD — Auto KB Update (Delete + Re-Add)&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="420" y="20" width="560" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Trigger Box -->
+        <mxCell id="trigger-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;arcSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="80" width="320" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="trigger-title" value="&lt;b&gt;TRIGGERS&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="170" y="85" width="100" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="trigger-cron" value="⏰ Cron: 1st &amp; 15th of month (03:00 UTC)" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="80" y="115" width="280" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="trigger-manual" value="🖱️ Manual: workflow_dispatch&#xa;   Inputs: series, skip_ingestion, skip_upload" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="80" y="150" width="280" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- JOB 1 Box (Cloud) -->
+        <mxCell id="job1-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="460" y="80" width="460" height="340" as="geometry" />
+        </mxCell>
+        <mxCell id="job1-title" value="&lt;b&gt;JOB 1: Pipeline&lt;/b&gt; (ubuntu-latest, cloud)" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="540" y="90" width="300" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Job1 Steps -->
+        <mxCell id="j1s1" value="① Checkout repository" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="125" width="400" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="j1s2" value="② pip install -r requirements.txt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="170" width="400" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="j1s3" value="③ run_all_series.py --export-st-ready --skip-chunking&#xa;   For each series: Ingest → Clean → Enrich → Similarity → Export" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="215" width="400" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="j1s4" value="④ validate_schemas.py (quality gate)&#xa;   ✅ Pass → artifacts uploaded    ❌ Fail → workflow stops" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="280" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="j1s5" value="⑤ upload-artifact@v4 (datasets/07_delivery/st_ready/by_series/)&#xa;   Retention: 30 days" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="340" width="400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow trigger to job1 -->
+        <mxCell id="arrow-trigger" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="trigger-box" target="job1-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow job1 to job2 -->
+        <mxCell id="arrow-j1j2" value="artifacts" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1" source="job1-box" target="job2-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- JOB 2 Box (Self-hosted) -->
+        <mxCell id="job2-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;arcSize=5;" vertex="1" parent="1">
+          <mxGeometry x="460" y="480" width="460" height="380" as="geometry" />
+        </mxCell>
+        <mxCell id="job2-title" value="&lt;b&gt;JOB 2: Upload to KB&lt;/b&gt; (self-hosted, PC local + réseau ST)" style="text;html=1;align=center;verticalAlign=top;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="500" y="490" width="400" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- Job2 Steps -->
+        <mxCell id="j2s1" value="① Download artifacts from Job 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="525" width="400" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="j2s2" value="② DELETE existing datasources (clear old content)&#xa;   For each series × 4 datasources: --operation delete" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="570" width="400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="j2s3" value="③ ADD new content to datasources&#xa;   For each series × 4 types: --operation add&#xa;   --json-split-size 1000 (handles large files)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="630" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="j2s4" value="④ Upload Summary → GITHUB_STEP_SUMMARY&#xa;   Markdown report in GitHub Actions UI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;align=left;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="490" y="700" width="400" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Note: why delete+add -->
+        <mxCell id="note-delete" value="&lt;i&gt;Delete + Re-Add pattern avoids&#xa;&quot;file already exists&quot; errors&#xa;when uploading updated JSON&lt;/i&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#b85450;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="490" y="760" width="220" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- External: ST AI Bridge API -->
+        <mxCell id="api-box" value="&lt;b&gt;ST AI Bridge API&lt;/b&gt;&#xa;&#xa;api-ai-bridge.st.com&#xa;KB #793 (ST GitHub Analyzer)&#xa;&#xa;Client: mdrf_st_github_analyzer&#xa;Auth: HMAC-SHA1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e6d0de;strokeColor=#996185;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="560" width="240" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow job2 to API -->
+        <mxCell id="a-api" value="HTTPS POST&#xa;(delete + add)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#9673a6;" edge="1" parent="1" source="j2s3" target="api-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Secrets Box -->
+        <mxCell id="secrets-box" value="&lt;b&gt;GitHub Secrets&lt;/b&gt;&#xa;&#xa;ST_CHATGPT_API_KEY&#xa;ST_REMOTE_USER&#xa;GITHUB_TOKEN (auto)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="80" width="240" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow secrets to job2 -->
+        <mxCell id="a-secrets" value="env vars" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1;strokeColor=#d79b00;dashed=1;" edge="1" parent="1" source="secrets-box" target="job2-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Persona Box (downstream) -->
+        <mxCell id="persona-box" value="&lt;b&gt;Persona: ST GitHub Analyzer&lt;/b&gt;&#xa;&#xa;Tool: KB Unstructured (Hybrid Search)&#xa;Tool: Alfred Fallback&#xa;&#xa;→ Answers user questions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1050" y="750" width="240" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow API to Persona -->
+        <mxCell id="a-persona" value="KB indexed" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="api-box" target="persona-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Datasource Table -->
+        <mxCell id="ds-table" value="&lt;table border='1' cellpadding='4' style='border-collapse:collapse;font-size:10px;'&gt;&lt;tr style='background:#e1d5e7;'&gt;&lt;th&gt;Series&lt;/th&gt;&lt;th&gt;Issues&lt;/th&gt;&lt;th&gt;Files&lt;/th&gt;&lt;th&gt;Resolver&lt;/th&gt;&lt;th&gt;Diag&lt;/th&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;F4&lt;/td&gt;&lt;td&gt;28099&lt;/td&gt;&lt;td&gt;28103&lt;/td&gt;&lt;td&gt;28118&lt;/td&gt;&lt;td&gt;28122&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;H5&lt;/td&gt;&lt;td&gt;28158&lt;/td&gt;&lt;td&gt;28163&lt;/td&gt;&lt;td&gt;28164&lt;/td&gt;&lt;td&gt;28165&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;H7&lt;/td&gt;&lt;td&gt;24406&lt;/td&gt;&lt;td&gt;21824&lt;/td&gt;&lt;td&gt;20403&lt;/td&gt;&lt;td&gt;23768&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;U5&lt;/td&gt;&lt;td&gt;28167&lt;/td&gt;&lt;td&gt;28168&lt;/td&gt;&lt;td&gt;28244&lt;/td&gt;&lt;td&gt;28170&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;WL&lt;/td&gt;&lt;td&gt;28171&lt;/td&gt;&lt;td&gt;28172&lt;/td&gt;&lt;td&gt;28245&lt;/td&gt;&lt;td&gt;28173&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=#666666;fillColor=#f5f5f5;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="550" width="300" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ds-label" value="&lt;b&gt;Datasource ID Registry (KB #793)&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="525" width="260" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- GitHub repos (source) -->
+        <mxCell id="github-box" value="&lt;b&gt;GitHub&lt;/b&gt;&#xa;STMicroelectronics&#xa;&#xa;47 repos (F4, H5, H7, U5, WL)&#xa;Issues, PRs, Files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="260" width="320" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow GitHub to Job1 -->
+        <mxCell id="a-github" value="GitHub API&#xa;(fetch)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#333333;" edge="1" parent="1" source="github-box" target="job1-box">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

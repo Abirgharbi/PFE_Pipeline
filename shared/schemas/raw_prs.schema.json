@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shared/schemas/raw_prs.schema.json",
+  "title": "STM32Cube raw_prs",
+  "description": "Schema for data/raw_prs_*.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "repo",
+      "pr_number",
+      "title",
+      "state",
+      "merged",
+      "draft",
+      "author",
+      "labels",
+      "created_at",
+      "updated_at",
+      "closed_at",
+      "merged_at",
+      "body",
+      "github_url",
+      "head_ref",
+      "base_ref",
+      "merge_commit_sha",
+      "commits_count",
+      "review_comments_count",
+      "comments_count",
+      "changed_files_count",
+      "additions",
+      "deletions",
+      "linked_issue_numbers",
+      "files_changed"
+    ],
+    "properties": {
+      "repo": { "type": "string" },
+      "pr_number": { "type": "integer" },
+      "title": { "type": "string" },
+      "state": { "type": "string", "enum": ["open", "closed"] },
+      "merged": { "type": "boolean" },
+      "draft": { "type": "boolean" },
+      "author": { "type": ["string", "null"] },
+      "labels": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "created_at": { "type": ["string", "null"] },
+      "updated_at": { "type": ["string", "null"] },
+      "closed_at": { "type": ["string", "null"] },
+      "merged_at": { "type": ["string", "null"] },
+      "body": { "type": "string" },
+      "github_url": { "type": ["string", "null"] },
+      "head_ref": { "type": ["string", "null"] },
+      "base_ref": { "type": ["string", "null"] },
+      "merge_commit_sha": { "type": ["string", "null"] },
+      "commits_count": { "type": "integer", "minimum": 0 },
+      "review_comments_count": { "type": "integer", "minimum": 0 },
+      "comments_count": { "type": "integer", "minimum": 0 },
+      "changed_files_count": { "type": "integer", "minimum": 0 },
+      "additions": { "type": "integer", "minimum": 0 },
+      "deletions": { "type": "integer", "minimum": 0 },
+      "linked_issue_numbers": {
+        "type": "array",
+        "items": { "type": "integer" }
+      },
+      "files_changed": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "filename",
+            "status",
+            "additions",
+            "deletions",
+            "changes",
+            "previous_filename",
+            "blob_url",
+            "raw_url"
+          ],
+          "properties": {
+            "filename": { "type": ["string", "null"] },
+            "status": { "type": ["string", "null"] },
+            "additions": { "type": "integer", "minimum": 0 },
+            "deletions": { "type": "integer", "minimum": 0 },
+            "changes": { "type": "integer", "minimum": 0 },
+            "previous_filename": { "type": ["string", "null"] },
+            "blob_url": { "type": ["string", "null"] },
+            "raw_url": { "type": ["string", "null"] }
+          },
+          "additionalProperties": true
+        }
+      }
+    },
+    "additionalProperties": true
+  }
+}

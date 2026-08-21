@@ -1,0 +1,35 @@
+{
+  "owner": "STMicroelectronics",
+  "repos": [
+    "STM32CubeWB0",
+    "cmsis-device-wb0",
+    "stm32-mw-fatfs",
+    "stm32-mw-freertos",
+    "stm32wb0x-hal-driver",
+    "stm32wb0x-nucleo-bsp"
+  ],
+  "data_dir": "data",
+  "repos_dir": "GitHub_repos",
+  "auto_clone_missing_repos": true,
+  "repo_clone_urls": {
+    "cmsis-device-wb0": "https://github.com/STMicroelectronics/cmsis_device_wb0.git",
+    "stm32-mw-fatfs": "https://github.com/STMicroelectronics/stm32-mw-fatfs.git",
+    "stm32-mw-freertos": "https://github.com/STMicroelectronics/stm32-mw-freertos.git",
+    "stm32wb0x-hal-driver": "https://github.com/STMicroelectronics/stm32wb0x_hal_driver.git",
+    "stm32wb0x-nucleo-bsp": "https://github.com/STMicroelectronics/stm32wb0x-nucleo-bsp.git"
+  },
+  "linked_repo_refs": {
+    "cmsis-device-wb0": "f893ef4a3886f53f8042daca733cfcde9b708ed2",
+    "stm32-mw-fatfs": "710f8ced97d724f1bb9e4d5baa9f738d27b87f83",
+    "stm32-mw-freertos": "e41c220a37adbb55b59dca704def6e73d6258b95",
+    "stm32wb0x-hal-driver": "f9b117fb84f2cf2b19637b6f2abbbfe255de2ae8",
+    "stm32wb0x-nucleo-bsp": "31245de37c9bc7f70c5fbd62e2c63885e8d8179a"
+  },
+  "commit_pr_scope": "linked_or_merged",
+  "github_token_env": "GITHUB_TOKEN",
+  "rate_limits": {
+    "issues_sleep": 0.2,
+    "comments_sleep": 0.1
+  },
+  "ingest_version": "v1.0"
+}

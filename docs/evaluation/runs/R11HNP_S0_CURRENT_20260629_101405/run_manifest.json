@@ -1,0 +1,22 @@
+{
+  "run_id": "R11HNP",
+  "run_date": "2026-06-29",
+  "strategy_id": "S0_CURRENT",
+  "persona": "ST GitHub Analyzer",
+  "strategy_params": {
+    "search_type": "Hybrid",
+    "semantic_threshold": "0.55",
+    "semantic_max_doc_count": "20",
+    "fulltext_max_doc_count": "12"
+  },
+  "questions_file": "docs\\evaluation\\all_series_test_suite_10q_diversified_chatwithalfred.xlsx",
+  "xlsx_sheet": "",
+  "remote_user": "abir.gharbi@st.com",
+  "temperature": 0.3,
+  "max_retries": 2,
+  "request_timeout": 120,
+  "max_response_tokens": 512,
+  "delay": 0.0,
+  "use_proxy": false,
+  "note": "Backend KB parameters must be set manually to match strategy_params before this run."
+}

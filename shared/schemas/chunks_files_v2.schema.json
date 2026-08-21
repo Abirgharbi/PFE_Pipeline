@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shared/schemas/chunks_files_v2.schema.json",
+  "title": "STM32Cube chunks_files_v2",
+  "description": "Schema for data/chunks_files_*_v2.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "text", "metadata"],
+    "properties": {
+      "id": { "type": "string" },
+      "text": { "type": "string" },
+      "metadata": {
+        "type": "object",
+        "required": [
+          "id",
+          "source_kind",
+          "repo",
+          "mcu_package",
+          "type",
+          "path",
+          "file_type",
+          "ingest_version",
+          "is_valid",
+          "chunk_index",
+          "chunk_count"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "source_kind": { "type": "string", "const": "file" },
+          "repo": { "type": "string" },
+          "mcu_package": { "type": "string" },
+          "mcu_series": { "type": ["string", "null"] },
+          "type": { "type": "string", "const": "file" },
+          "path": { "type": "string" },
+          "file_type": {
+            "type": "string",
+            "enum": ["project_readme", "release_notes", "root_readme", "doc_readme", "documentation_pdf", "repo_metadata", "driver_source", "hal_driver_source", "middleware_source", "utilities_content", "bsp_component_source", "cmsis_source", "bsp_board_source", "other"]
+          },
+          "github_url": { "type": ["string", "null"] },
+          "board": { "type": ["string", "null"] },
+          "category": { "type": ["string", "null"] },
+          "component": { "type": ["string", "null"] },
+          "example_name": { "type": ["string", "null"] },
+          "ingest_version": { "type": "string" },
+          "is_valid": { "type": "boolean" },
+          "chunk_index": { "type": "integer", "minimum": 0 },
+          "chunk_count": { "type": "integer", "minimum": 1 }
+        },
+        "additionalProperties": true
+      }
+    },
+    "additionalProperties": false
+  }
+}

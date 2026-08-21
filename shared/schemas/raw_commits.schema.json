@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shared/schemas/raw_commits.schema.json",
+  "title": "STM32Cube raw_commits",
+  "description": "Schema for data/raw_commits_*.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "repo",
+      "sha",
+      "author",
+      "committer",
+      "message",
+      "authored_at",
+      "committed_at",
+      "github_url",
+      "parents",
+      "stats",
+      "files_changed",
+      "linked_issue_numbers",
+      "pr_numbers"
+    ],
+    "properties": {
+      "repo": { "type": "string" },
+      "sha": { "type": "string" },
+      "author": { "type": ["string", "null"] },
+      "committer": { "type": ["string", "null"] },
+      "message": { "type": "string" },
+      "authored_at": { "type": ["string", "null"] },
+      "committed_at": { "type": ["string", "null"] },
+      "github_url": { "type": ["string", "null"] },
+      "parents": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "stats": {
+        "type": "object",
+        "required": ["additions", "deletions", "total"],
+        "properties": {
+          "additions": { "type": "integer", "minimum": 0 },
+          "deletions": { "type": "integer", "minimum": 0 },
+          "total": { "type": "integer", "minimum": 0 }
+        },
+        "additionalProperties": true
+      },
+      "files_changed": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "filename",
+            "status",
+            "additions",
+            "deletions",
+            "changes",
+            "previous_filename",
+            "patch"
+          ],
+          "properties": {
+            "filename": { "type": ["string", "null"] },
+            "status": { "type": ["string", "null"] },
+            "additions": { "type": "integer", "minimum": 0 },
+            "deletions": { "type": "integer", "minimum": 0 },
+            "changes": { "type": "integer", "minimum": 0 },
+            "previous_filename": { "type": ["string", "null"] },
+            "patch": { "type": ["string", "null"] }
+          },
+          "additionalProperties": true
+        }
+      },
+      "linked_issue_numbers": {
+        "type": "array",
+        "items": { "type": "integer" }
+      },
+      "pr_numbers": {
+        "type": "array",
+        "items": { "type": "integer" }
+      }
+    },
+    "additionalProperties": true
+  }
+}

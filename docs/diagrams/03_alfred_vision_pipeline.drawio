@@ -1,0 +1,210 @@
+<mxfile host="app.diagrams.net" modified="2025-01-01T00:00:00.000Z" agent="draw.io" version="24.0.0">
+  <diagram name="ALFRED Vision Pipeline" id="alfred-pipeline">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="ALFRED Vision Pipeline — Two Enrichment Paths" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#F44336;" vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="800" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PATH A: PDF FIGURE ENRICHMENT (LEFT) ═══ -->
+        <mxCell id="pathA-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#F44336;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="20" y="70" width="640" height="780" as="geometry" />
+        </mxCell>
+        <mxCell id="pathA-title" value="PATH A: PDF Figure Enrichment (Step 7 — Before Cleaning)" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#F44336;" vertex="1" parent="1">
+          <mxGeometry x="60" y="85" width="560" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- PDF Source -->
+        <mxCell id="pdf-source" value="&lt;b&gt;PDF Source Files&lt;/b&gt;&lt;br&gt;Documentation/*.pdf in cloned repos&lt;br&gt;GettingStarted, UserManual, DataBrief&lt;br&gt;19 series with PDF documentation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#03234B;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="130" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- PyMuPDF -->
+        <mxCell id="pymupdf" value="&lt;b&gt;PyMuPDF (fitz)&lt;/b&gt;&lt;br&gt;render_pdf_pages()&lt;br&gt;Convert each page to PNG at 150 DPI&lt;br&gt;→ data/pdf_pages/&lt;repo&gt;/*.png" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E91E63;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="230" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- OpenCV -->
+        <mxCell id="opencv" value="&lt;b&gt;OpenCV Figure Detection&lt;/b&gt;&lt;br&gt;detect_candidate_figure_regions()&lt;br&gt;Contour detection + area filtering&lt;br&gt;crop_figures_from_page() → figure PNGs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E91E63;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="330" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Figure PNGs -->
+        <mxCell id="fig-pngs" value="&lt;b&gt;Cropped Figures&lt;/b&gt;&lt;br&gt;data/pdf_figures/&lt;repo&gt;/*.png&lt;br&gt;Isolated diagrams, schematics, flowcharts&lt;br&gt;Ready for ALFRED analysis" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFCDD2;fontColor=#333333;strokeColor=#F44336;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="430" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Task File -->
+        <mxCell id="task-file" value="&lt;b&gt;Task File (JSONL)&lt;/b&gt;&lt;br&gt;data/pdf_image_tasks_&lt;repo&gt;.jsonl&lt;br&gt;{figure_path, page, repo, pdf_name}&lt;br&gt;Batch input for ALFRED API" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFCDD2;fontColor=#333333;strokeColor=#F44336;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="60" y="530" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ALFRED API Call -->
+        <mxCell id="alfred-pdf-call" value="&lt;b&gt;ALFRED Vision API&lt;/b&gt;&lt;br&gt;api-ai-bridge.st.com&lt;br&gt;client: mdrf_stgithub_analyzer_client&lt;br&gt;Prompt: 'Describe this technical figure...'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="380" y="330" width="260" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Descriptions Output -->
+        <mxCell id="pdf-desc" value="&lt;b&gt;Figure Descriptions&lt;/b&gt;&lt;br&gt;data/pdf_image_descriptions.json&lt;br&gt;242 descriptions across 19 series&lt;br&gt;{repo, page, figure_id, description}" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;strokeColor=#4CAF50;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="380" y="450" width="260" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Injection -->
+        <mxCell id="injection" value="&lt;b&gt;Injection into files_to_docs_v2&lt;/b&gt;&lt;br&gt;inject_figure_descriptions_into_pages()&lt;br&gt;[FIGURE_DESCRIPTIONS] block added to doc&lt;br&gt;→ docs_files_&lt;repo&gt;_v2.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;strokeColor=#4CAF50;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="380" y="560" width="260" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Final output A -->
+        <mxCell id="output-a" value="&lt;b&gt;Delivery Output&lt;/b&gt;&lt;br&gt;st_ready_files_&lt;repo&gt;_v3.json&lt;br&gt;PDF content + figure descriptions&lt;br&gt;Searchable by RAG system" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#03234B;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="380" y="670" width="260" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Path A -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#F44336;strokeWidth=2;" edge="1" source="pdf-source" target="pymupdf" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#F44336;strokeWidth=2;" edge="1" source="pymupdf" target="opencv" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#F44336;strokeWidth=2;" edge="1" source="opencv" target="fig-pngs" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#F44336;strokeWidth=2;" edge="1" source="fig-pngs" target="task-file" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" value="send figures" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#F44336;strokeWidth=2;fontColor=#F44336;fontSize=9;" edge="1" source="task-file" target="alfred-pdf-call" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" value="returns text" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#4CAF50;strokeWidth=2;fontColor=#4CAF50;fontSize=9;" edge="1" source="alfred-pdf-call" target="pdf-desc" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#4CAF50;strokeWidth=2;" edge="1" source="pdf-desc" target="injection" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#4CAF50;strokeWidth=2;" edge="1" source="injection" target="output-a" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PATH B: ISSUE IMAGE ENRICHMENT (RIGHT) ═══ -->
+        <mxCell id="pathB-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1A238E;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="700" y="70" width="350" height="780" as="geometry" />
+        </mxCell>
+        <mxCell id="pathB-title" value="PATH B: Issue Image Enrichment&lt;br&gt;(Step 23 — Post-Delivery)" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;fontColor=#1A238E;" vertex="1" parent="1">
+          <mxGeometry x="720" y="80" width="310" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Issue with images -->
+        <mxCell id="issue-src" value="&lt;b&gt;Delivery Output&lt;/b&gt;&lt;br&gt;st_ready_issues_with_images_&lt;repo&gt;.json&lt;br&gt;Contains image_urls array&lt;br&gt;Body has [IMAGE ATTACHED] markers" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#03234B;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="730" y="140" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Image download -->
+        <mxCell id="img-download" value="&lt;b&gt;Image Download&lt;/b&gt;&lt;br&gt;Download screenshots from GitHub CDN&lt;br&gt;user-images.githubusercontent.com&lt;br&gt;Handles expired URLs gracefully" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="730" y="240" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- ALFRED Call -->
+        <mxCell id="alfred-img-call" value="&lt;b&gt;ALFRED Vision API&lt;/b&gt;&lt;br&gt;api-ai-bridge.st.com&lt;br&gt;Prompt: 'Describe this screenshot from&lt;br&gt;an STM32 GitHub issue...'" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=10;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="730" y="340" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Text replacement -->
+        <mxCell id="text-replace" value="&lt;b&gt;In-Place Text Replacement&lt;/b&gt;&lt;br&gt;[IMAGE ATTACHED] → [IMAGE DESCRIPTION]&lt;br&gt;+ structured image_analyses array&lt;br&gt;Modifies JSON file directly" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="730" y="440" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Known fix -->
+        <mxCell id="known-fix" value="&lt;b&gt;Known Fix: first_sentence()&lt;/b&gt;&lt;br&gt;Strips [IMAGE ATTACHED] from root_cause_hint&lt;br&gt;Prevents duplication when comment images&lt;br&gt;are quoted in both sections" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="730" y="540" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Output B -->
+        <mxCell id="output-b" value="&lt;b&gt;Final Enriched File&lt;/b&gt;&lt;br&gt;st_ready_issues_with_images_&lt;repo&gt;_&lt;br&gt;with_alfred_image_text.json&lt;br&gt;Screenshots now searchable via text" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;strokeColor=#4CAF50;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="730" y="640" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Upload B -->
+        <mxCell id="upload-b" value="&lt;b&gt;Upload to KB #793&lt;/b&gt;&lt;br&gt;Replaces non-enriched version in datasource&lt;br&gt;Issues DS per series" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#03234B;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="730" y="740" width="300" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows Path B -->
+        <mxCell id="b1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#1A238E;strokeWidth=2;" edge="1" source="issue-src" target="img-download" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#1A238E;strokeWidth=2;" edge="1" source="img-download" target="alfred-img-call" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#1A238E;strokeWidth=2;" edge="1" source="alfred-img-call" target="text-replace" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#FF9800;strokeWidth=1;dashed=1;" edge="1" source="text-replace" target="known-fix" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#4CAF50;strokeWidth=2;" edge="1" source="text-replace" target="output-b" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#03234B;strokeWidth=2;" edge="1" source="output-b" target="upload-b" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Stats box -->
+        <mxCell id="stats-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="70" width="280" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="stats-title" value="&lt;b&gt;ALFRED Coverage Stats&lt;/b&gt;" style="text;html=1;align=center;fontSize=12;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="80" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="stat1" value="PDF Figures: 242 descriptions" style="text;html=1;align=left;fontSize=10;fontColor=#F44336;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="110" width="240" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="stat2" value="Series with PDFs: 19/25" style="text;html=1;align=left;fontSize=10;fontColor=#F44336;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="133" width="240" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="stat3" value="Issue Images: 200+ across 13 series" style="text;html=1;align=left;fontSize=10;fontColor=#1A238E;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="156" width="240" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="stat4" value="H7: 97/98 images described" style="text;html=1;align=left;fontSize=10;fontColor=#1A238E;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="179" width="240" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="stat5" value="Success rate: &gt;99% overall" style="text;html=1;align=left;fontSize=10;fontColor=#4CAF50;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="202" width="240" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="stat6" value="Remaining UNAVAILABLE: 0 (target)" style="text;html=1;align=left;fontSize=10;fontColor=#4CAF50;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="225" width="250" height="18" as="geometry" />
+        </mxCell>
+
+        <!-- API details box -->
+        <mxCell id="api-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="290" width="280" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="api-title" value="&lt;b&gt;ALFRED API Details&lt;/b&gt;" style="text;html=1;align=center;fontSize=12;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="300" width="240" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="api1" value="Endpoint: api-ai-bridge.st.com" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="325" width="250" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="api2" value="Client: mdrf_stgithub_analyzer_client" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="345" width="260" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="api3" value="Protocol: HTTPS (direct ST network)" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="365" width="250" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="api4" value="Rate limit: ~20 req before throttle" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="385" width="250" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="api5" value="Retry: 2× with 30s delay" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="405" width="250" height="16" as="geometry" />
+        </mxCell>
+        <mxCell id="api6" value="Options: --inplace, --use-proxy,&lt;br&gt;--max-records, --strip-analyses" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="1085" y="425" width="260" height="25" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-11T10:00:00.000Z" agent="Mozilla/5.0" version="21.0.0" type="device">
+  <diagram id="pipeline-architecture" name="Pipeline Architecture">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;STM32Cube Preprocessing Pipeline — End-to-End Architecture&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- DATA SOURCES GROUP -->
+        <mxCell id="src-group" value="DATA SOURCES" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="src-github" value="&lt;b&gt;GitHub API&lt;/b&gt;&lt;br&gt;• Issues&lt;br&gt;• Pull Requests&lt;br&gt;• Commits" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="60" y="120" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="src-docs" value="&lt;b&gt;Technical Docs&lt;/b&gt;&lt;br&gt;• README&lt;br&gt;• Release Notes&lt;br&gt;• PDF files" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="60" y="220" width="160" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="src-images" value="&lt;b&gt;Images&lt;/b&gt;&lt;br&gt;• Screenshots&lt;br&gt;• Schematics&lt;br&gt;• Oscilloscope traces" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="60" y="310" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- PIPELINE GROUP -->
+        <mxCell id="pipe-group" value="OUR PIPELINE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="320" y="80" width="700" height="320" as="geometry" />
+        </mxCell>
+        
+        <!-- Pipeline steps -->
+        <mxCell id="step1" value="&lt;b&gt;1. Ingestion&lt;/b&gt;&lt;br&gt;Download raw data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="340" y="120" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step2" value="&lt;b&gt;2. Cleaning&lt;/b&gt;&lt;br&gt;Remove HTML, noise" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="490" y="120" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="step3" value="&lt;b&gt;3. Enrichment&lt;/b&gt;&lt;br&gt;Feature Engineering&lt;br&gt;board, component, layer,&lt;br&gt;severity, issue_kind" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="640" y="120" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="step4" value="&lt;b&gt;4. Similarity&lt;/b&gt;&lt;br&gt;Link related issues&lt;br&gt;(cosine similarity)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="820" y="120" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="step5" value="&lt;b&gt;5. Data Generation&lt;/b&gt;&lt;br&gt;&lt;i&gt;NEW data created:&lt;/i&gt;&lt;br&gt;• Diagnostic Cards&lt;br&gt;• Resolver Cases&lt;br&gt;• Image Descriptions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="340" y="220" width="180" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="step6" value="&lt;b&gt;6. Evaluation&lt;/b&gt;&lt;br&gt;Benchmark 50Q&lt;br&gt;TF-IDF tests&lt;br&gt;Schema validation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="560" y="220" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="step7" value="&lt;b&gt;7. Delivery&lt;/b&gt;&lt;br&gt;ST-ready JSON&lt;br&gt;format for KB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="750" y="220" width="140" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- AI AGENT -->
+        <mxCell id="agent" value="&lt;b&gt;AI Agent&lt;/b&gt;&lt;br&gt;(LLM Vision)&lt;br&gt;Enriches images&lt;br&gt;autonomously" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="340" y="340" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- CI/CD -->
+        <mxCell id="cicd" value="&lt;b&gt;CI/CD&lt;/b&gt; (Jenkins + PowerShell) — Runs everything automatically" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="320" y="430" width="700" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- CHATBOT GROUP -->
+        <mxCell id="chat-group" value="RAG CHATBOT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;fontStyle=1;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="80" width="200" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="chat-llm" value="&lt;b&gt;LLM&lt;/b&gt;&lt;br&gt;(GPT-4)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="120" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="chat-vector" value="&lt;b&gt;Azure AI Search&lt;/b&gt;&lt;br&gt;Vector Database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="190" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="chat-kb" value="&lt;b&gt;Knowledge Base&lt;/b&gt;&lt;br&gt;(our data)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="260" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="chat-user" value="&lt;b&gt;End Users&lt;/b&gt;&lt;br&gt;Ask STM32 questions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="340" width="140" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ARROWS -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="src-group" target="step1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="step1" target="step2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="step2" target="step3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="step3" target="step4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="step4" target="step5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="step5" target="step6" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow7" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="step6" target="step7" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="step7" target="chat-kb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-11T10:00:00.000Z" agent="Mozilla/5.0" version="21.0.0" type="device">
+  <diagram id="rag-flow" name="RAG Flow">
+    <mxGraphModel dx="1200" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;RAG Flow — How the Chatbot Answers Questions&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="350" y="20" width="400" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- User -->
+        <mxCell id="user" value="&lt;b&gt;User&lt;/b&gt;&lt;br&gt;&quot;How to configure DMA on STM32H7?&quot;" style="shape=actor;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="80" y="200" width="140" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1: Query -->
+        <mxCell id="query" value="&lt;b&gt;1. Question&lt;/b&gt;&lt;br&gt;User types a question" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="290" y="100" width="150" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2: Retrieval -->
+        <mxCell id="retrieval" value="&lt;b&gt;2. RETRIEVAL&lt;/b&gt;&lt;br&gt;Search Knowledge Base&lt;br&gt;(Azure AI Search)&lt;br&gt;Find top-k similar docs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="500" y="80" width="180" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Knowledge Base -->
+        <mxCell id="kb" value="&lt;b&gt;Knowledge Base&lt;/b&gt;&lt;br&gt;(Our preprocessed data)&lt;br&gt;• Issues&lt;br&gt;• Diagnostic Cards&lt;br&gt;• Resolver Cases&lt;br&gt;• Files docs" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=10;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="750" y="70" width="160" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Step 3: Augmented prompt -->
+        <mxCell id="augment" value="&lt;b&gt;3. AUGMENTATION&lt;/b&gt;&lt;br&gt;Question + Retrieved docs&lt;br&gt;= Augmented prompt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="500" y="210" width="180" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Step 4: LLM Generation -->
+        <mxCell id="llm" value="&lt;b&gt;4. GENERATION&lt;/b&gt;&lt;br&gt;LLM (GPT-4) generates&lt;br&gt;answer from retrieved docs&lt;br&gt;&lt;i&gt;(not from general knowledge)&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="500" y="330" width="180" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Step 5: Answer -->
+        <mxCell id="answer" value="&lt;b&gt;5. Sourced Answer&lt;/b&gt;&lt;br&gt;&quot;To configure DMA on H7:&lt;br&gt;1. Enable DMA clock...&lt;br&gt;2. Configure stream...&quot;&lt;br&gt;&lt;i&gt;[Source: Issue #1234]&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="500" y="460" width="180" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="user" target="query" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="query" target="retrieval" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="retrieval" target="kb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="retrieval" target="augment" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="augment" target="llm" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="llm" target="answer" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="answer" target="user" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

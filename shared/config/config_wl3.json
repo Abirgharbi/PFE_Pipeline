@@ -1,0 +1,38 @@
+{
+  "owner": "STMicroelectronics",
+  "repos": [
+    "STM32CubeWL3",
+    "cmsis-device-wl3",
+    "stm32-mw-fatfs",
+    "stm32-mw-freertos",
+    "stm32-mw-wmbus",
+    "stm32wl3x-hal-driver",
+    "stm32wl3x-nucleo-bsp"
+  ],
+  "data_dir": "data",
+  "repos_dir": "GitHub_repos",
+  "auto_clone_missing_repos": true,
+  "repo_clone_urls": {
+    "cmsis-device-wl3": "https://github.com/STMicroelectronics/cmsis-device-wl3.git",
+    "stm32-mw-fatfs": "https://github.com/STMicroelectronics/stm32-mw-fatfs.git",
+    "stm32-mw-freertos": "https://github.com/STMicroelectronics/stm32-mw-freertos.git",
+    "stm32-mw-wmbus": "https://github.com/STMicroelectronics/stm32-mw-wmbus.git",
+    "stm32wl3x-hal-driver": "https://github.com/STMicroelectronics/stm32wl3x-hal-driver.git",
+    "stm32wl3x-nucleo-bsp": "https://github.com/STMicroelectronics/stm32wl3x-nucleo-bsp.git"
+  },
+  "linked_repo_refs": {
+    "cmsis-device-wl3": "11a3b42018dda36988c9cb313571370a4dbcdd5a",
+    "stm32-mw-fatfs": "710f8ced97d724f1bb9e4d5baa9f738d27b87f83",
+    "stm32-mw-freertos": "bca405993934921c6356a6f462aa3c55fca40084",
+    "stm32-mw-wmbus": "d599611e228772307bcb4d1801ffb4533ee91c1b",
+    "stm32wl3x-hal-driver": "d3b01935132bef972b8601fd932c019fc3347cfb",
+    "stm32wl3x-nucleo-bsp": "9973e429a01bc263596b8d209c696e80fc988b9a"
+  },
+  "commit_pr_scope": "linked_or_merged",
+  "github_token_env": "GITHUB_TOKEN",
+  "rate_limits": {
+    "issues_sleep": 0.2,
+    "comments_sleep": 0.1
+  },
+  "ingest_version": "v1.0"
+}

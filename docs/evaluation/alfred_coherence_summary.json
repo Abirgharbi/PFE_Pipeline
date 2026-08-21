@@ -1,0 +1,48 @@
+{
+  "total_checked": 701,
+  "low_coherence": 194,
+  "low_coherence_rate": 0.2767,
+  "by_source": {
+    "pdf_figure": {
+      "count": 301,
+      "low_coherence": 191,
+      "low_coherence_rate": 0.6346,
+      "avg_coherence_score": 0.16,
+      "class_distribution": {
+        "EXCELLENT": 0,
+        "BON": 0,
+        "ACCEPTABLE": 10,
+        "INSUFFISANT": 291
+      }
+    },
+    "issue_image": {
+      "count": 400,
+      "low_coherence": 3,
+      "low_coherence_rate": 0.0075,
+      "avg_coherence_score": 0.4995,
+      "class_distribution": {
+        "EXCELLENT": 0,
+        "BON": 0,
+        "ACCEPTABLE": 1,
+        "INSUFFISANT": 399
+      }
+    }
+  },
+  "scoring_config": {
+    "alpha_lexical": 0.4,
+    "beta_semantic": 0.6,
+    "gamma_contradiction": 0.8,
+    "threshold_low": 0.12,
+    "excellent_threshold": 0.95,
+    "good_threshold": 0.85,
+    "acceptable_threshold": 0.7,
+    "semantic_mode": "lite",
+    "nli_mode": "lite",
+    "semantic_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "nli_model": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "semantic_available": true,
+    "nli_available": true,
+    "semantic_info": "semantic_lite_builtin",
+    "nli_info": "nli_lite_builtin"
+  }
+}

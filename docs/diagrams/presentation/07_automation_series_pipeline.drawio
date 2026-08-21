@@ -1,0 +1,179 @@
+<mxfile host="app.diagrams.net" modified="2026-07-20T00:00:00.000Z" agent="copilot" version="24.0.0">
+  <diagram id="automation-series-pipeline" name="Automation Serie Complète">
+    <mxGraphModel dx="1600" dy="960" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1900" pageHeight="1350" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TITLE -->
+        <mxCell id="title" value="&lt;b&gt;Automation Pipeline — Run_Single_Series_Full_Pipeline_And_Upload.ps1&lt;/b&gt;" style="text;html=1;align=center;fontSize=18;fontColor=#03234B;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="1100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- SUBTITLE MODES -->
+        <mxCell id="modes-title" value="&lt;b&gt;Modes d'exécution&lt;/b&gt;" style="text;html=1;align=left;fontSize=12;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="60" y="70" width="200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- MODE BOXES -->
+        <mxCell id="mode-full" value="&lt;b&gt;-Mode Full&lt;/b&gt;&#xa;(défaut)&#xa;&#xa;Prepare + Upload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="130" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="mode-prepare" value="&lt;b&gt;-Mode Prepare&lt;/b&gt;&#xa;&#xa;Artefacts locaux&#xa;sans upload KB" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="210" y="100" width="130" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="mode-upload" value="&lt;b&gt;-Mode Upload&lt;/b&gt;&#xa;&#xa;Upload seulement&#xa;(artefacts déjà prêts)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="360" y="100" width="130" height="75" as="geometry" />
+        </mxCell>
+
+        <!-- PHASE PREPARE ZONE -->
+        <mxCell id="prepare-zone" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f0f7ed;strokeColor=#82b366;arcSize=3;dashed=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="210" width="850" height="760" as="geometry" />
+        </mxCell>
+        <mxCell id="prepare-label" value="&lt;b&gt;PHASE PREPARE&lt;/b&gt;" style="text;html=1;align=left;fontSize=13;fontColor=#2d6a4f;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="75" y="215" width="200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- STEP 1 -->
+        <mxCell id="step1" value="&lt;b&gt;① Sync repo + audit submodules&lt;/b&gt;&#xa;&#xa;• git pull sur le repo parent STM32Cube&lt;Series&gt;&#xa;• Audit et fix des submodules manquants&#xa;  (BSP, drivers, Middlewares)&#xa;• Vérification config JSON par rapport aux sous-repos&#xa;&#xa;Script: repo_sync_service.py + audit_config_submodules.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="90" y="250" width="460" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- STEP 2 -->
+        <mxCell id="step2" value="&lt;b&gt;② Preprocessing complet (--skip-chunking) + Alfred PDF&lt;/b&gt;&#xa;&#xa;• Ingestion: issues, PRs, commits, files&#xa;• Cleaning: issues + files&#xa;• Enrichment V2: docs_issues + docs_files&#xa;• Similarity: related_issue_ids&#xa;• Alfred PDF: conversion figures PDF → texte pendant le pipeline&#xa;&#xa;Script: python -m pipeline.run_full_workflow --skip-chunking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="90" y="390" width="460" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- STEP 3 -->
+        <mxCell id="step3" value="&lt;b&gt;③ Export ST-ready : parent + subrepos&lt;/b&gt;&#xa;&#xa;• Issues JSON (issues + issues_with_images)&#xa;• Resolver Cases JSON&#xa;• Diagnostic Cards JSON&#xa;• Files V3 JSON (tous les repos + drivers/*)&#xa;&#xa;Script: export_st_ready_issues / resolver / diagnostic / files_v3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="90" y="540" width="460" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- STEP 4 -->
+        <mxCell id="step4" value="&lt;b&gt;④ Alfred enrichissement images issues&lt;/b&gt;&#xa;&#xa;• Scan tous les st_ready_issues_with_images_*.json&#xa;• Envoi de chaque image_url vers Alfred Vision API&#xa;• Remplacement [IMAGE ATTACHED] → [IMAGE DESCRIPTION]&#xa;• fix: first_sentence() évite duplication root_cause_hint&#xa;&#xa;Script: enrich_json_images_with_alfred.py --inplace" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="90" y="680" width="460" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- STEP 5 -->
+        <mxCell id="step5" value="&lt;b&gt;⑤ Patch descriptions PDF dans les fichiers de livraison&lt;/b&gt;&#xa;&#xa;• Injection des textes PDF (figures, tables)&#xa;  dans les fichiers files_json racine + drivers/*/files_json&#xa;• Remplacement [FIGURE DETECTED] par le contenu Alfred réel&#xa;&#xa;Script: patch_pdf_descriptions_in_delivery.py" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="90" y="820" width="460" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- STEP 6 -->
+        <mxCell id="step6" value="&lt;b&gt;⑥ Validation schémas + contrôle placeholders&lt;/b&gt;&#xa;&#xa;• validate_schemas.py → porte qualité obligatoire&#xa;• Échec si placeholder non résolu :&#xa;  [IMAGE DESCRIPTION UNAVAILABLE] / [FIGURE DETECTED]&#xa;• PlaceholderPolicy: Fail | Warn | Off&#xa;&#xa;Script: validate_schemas.py + placeholder check" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="90" y="950" width="460" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows PREPARE steps -->
+        <mxCell id="a12" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="step1" target="step2" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a23" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="step2" target="step3" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a34" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="step3" target="step4" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a45" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="step4" target="step5" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a56" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#82b366;strokeWidth=2;" edge="1" source="step5" target="step6" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Artifacts output box (right of prepare zone) -->
+        <mxCell id="artifacts-box" value="&lt;b&gt;Artefacts locaux générés&lt;/b&gt;&#xa;&#xa;datasets/07_delivery/st_ready/by_series/&lt;slug&gt;/&#xa;├── issues_json/&#xa;│   ├── st_ready_issues_&lt;repo&gt;.json&#xa;│   ├── st_ready_issues_with_images_&lt;repo&gt;.json&#xa;│   └── st_ready_issues_with_images_&lt;repo&gt;__alfred_summary.json&#xa;├── files_json/&#xa;│   └── st_ready_files_&lt;repo&gt;_v3.json&#xa;├── resolver_cases_json/&#xa;│   └── st_ready_resolver_cases_&lt;repo&gt;.json&#xa;├── diagnostic_cards_json/&#xa;│   └── st_ready_diagnostic_cards_&lt;repo&gt;.json&#xa;└── drivers/&#xa;    └── &lt;subrepo&gt;/ (issues, files, resolver, diagnostic)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="600" y="450" width="430" height="250" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow step3 to artifacts -->
+        <mxCell id="a-art" value="génère" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#2e7d32;strokeWidth=2;dashed=1;" edge="1" source="step3" target="artifacts-box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- SkipDrivers note -->
+        <mxCell id="skip-note" value="&lt;i&gt;-SkipDrivers : saute les exports&#xa;et uploads des sous-repos / drivers&lt;/i&gt;" style="text;html=1;align=center;fontSize=10;strokeColor=#b85450;fillColor=none;fontColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="600" y="730" width="260" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- PHASE UPLOAD ZONE -->
+        <mxCell id="upload-zone" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3eef8;strokeColor=#9673a6;arcSize=3;dashed=1;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1000" width="1550" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="upload-label" value="&lt;b&gt;PHASE UPLOAD&lt;/b&gt;" style="text;html=1;align=left;fontSize=13;fontColor=#6a1b9a;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="75" y="1005" width="200" height="25" as="geometry" />
+        </mxCell>
+
+        <!-- STEP 7 -->
+        <mxCell id="step7" value="&lt;b&gt;⑦ Création datasources KB (operation new) ou ajout (operation add)&lt;/b&gt;&#xa;&#xa;• Si IssuesDatasourceId / FilesDatasourceId / DiagnosticDatasourceId = 0&#xa;  → --operation new (crée une nouvelle datasource KB)&#xa;• Si ID fourni en paramètre → --operation add (ajoute dans l'ID existant)&#xa;• Datasources créées: Issues, Files, Diagnostic, Resolver (si données présentes)&#xa;• Sauvegarde IDs: upload_datasource_ids_&lt;slug&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1040" width="580" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- STEP 8 -->
+        <mxCell id="step8" value="&lt;b&gt;⑧ Upload drivers/subrepos dans datasources parent&lt;/b&gt;&#xa;&#xa;• drivers/*/issues_json → datasource Issues parent (operation add)&#xa;• drivers/*/files_json → datasource Files parent (operation add)&#xa;• drivers/*/diagnostic_cards_json → datasource Diagnostic parent&#xa;• drivers/*/resolver_cases_json → datasource Resolver parent&#xa;• --json-split-size 1000 (gestion grands fichiers)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#9673a6;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="700" y="1040" width="560" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- KB Box -->
+        <mxCell id="kb-box" value="&lt;b&gt;ST AI Bridge KB #793&lt;/b&gt;&#xa;ST GitHub Analyzer&#xa;&#xa;Issues DS&#xa;Files DS&#xa;Diagnostic DS&#xa;Resolver DS&#xa;&#xa;(par série)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="1040" width="200" height="180" as="geometry" />
+        </mxCell>
+
+        <!-- IDs file -->
+        <mxCell id="ids-file" value="upload_datasource_ids_&lt;slug&gt;.json&#xa;&#xa;→ Copier dans&#xa;shared/config/config_all_series.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=10;align=center;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1200" width="300" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows UPLOAD phase -->
+        <mxCell id="a6-7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673a6;strokeWidth=2;" edge="1" source="step6" target="step7" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a7-8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673a6;strokeWidth=2;" edge="1" source="step7" target="step8" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a8-kb" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#9673a6;strokeWidth=2;" edge="1" source="step8" target="kb-box" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a7-ids" value="sauvegarde IDs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#f9a825;strokeWidth=1;dashed=1;" edge="1" source="step7" target="ids-file" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Right side: GitHub Source -->
+        <mxCell id="github-src" value="&lt;b&gt;GitHub STMicroelectronics&lt;/b&gt;&#xa;&#xa;Repos actifs (G4, L0, L1, L4, L5, N6, U0, U3…)&#xa;Issues · PRs · Commits · Files · Submodules" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#333333;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="600" y="250" width="430" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow github to step1 -->
+        <mxCell id="a-gh1" value="git pull / GitHub API" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#333333;strokeWidth=2;" edge="1" source="github-src" target="step1" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Alfred API external -->
+        <mxCell id="alfred-api" value="&lt;b&gt;Alfred Vision API&lt;/b&gt;&#xa;api-ai-bridge.st.com&#xa;&#xa;Client: mdrf_stgithub_analyzer&#xa;→ image URL → description + OCR" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce4ec;strokeColor=#c62828;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="600" y="720" width="430" height="110" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow step4 to alfred -->
+        <mxCell id="a-s4-alfred" value="HTTPS POST" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#c62828;strokeWidth=2;" edge="1" source="step4" target="alfred-api" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Persona output -->
+        <mxCell id="persona-out" value="&lt;b&gt;Persona: ST GitHub Analyzer&lt;/b&gt;&#xa;&#xa;Outil KB: Hybrid Search&#xa;Outil fallback: Alfred&#xa;&#xa;→ Répond aux questions STM32" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;align=center;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="840" width="230" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- Arrow KB to Persona -->
+        <mxCell id="a-kb-p" value="KB indexée" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#6c8ebf;strokeWidth=2;" edge="1" source="kb-box" target="persona-out" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend" value="&lt;b&gt;Légende:&lt;/b&gt;  🟢 Preprocessing  🟡 Validation  🔴 Alfred Vision  🟣 Upload KB" style="text;html=1;align=left;fontSize=11;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1290" width="700" height="30" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

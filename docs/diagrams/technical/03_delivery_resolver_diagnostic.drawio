@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-05T10:00:00.000Z" agent="STM32Cube PFE" version="21.0.0">
+  <diagram id="tech-delivery" name="Technical - Delivery &amp; Resolver/Diagnostic Generation">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Stage 7: Delivery - Resolver Cases &amp; Diagnostic Cards Generation" style="text;html=1;align=center;fontSize=16;fontStyle=1;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="600" height="30" as="geometry" />
+        </mxCell>
+        <!-- Inputs -->
+        <mxCell id="in_issues" value="docs_issues_{repo}_v2_sim.json&#xa;(enriched + similarity)" style="shape=document;whiteSpace=wrap;html=1;size=0.1;fillColor=#fff3e0;strokeColor=#e65100;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="230" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="in_links" value="issue_pr_commit_links_{repo}.json&#xa;(cross-references)" style="shape=document;whiteSpace=wrap;html=1;size=0.1;fillColor=#e1f5fe;strokeColor=#0277bd;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="150" width="230" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="in_files" value="docs_files_{repo}_v2.json&#xa;(file documentation)" style="shape=document;whiteSpace=wrap;html=1;size=0.1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="230" height="50" as="geometry" />
+        </mxCell>
+        <!-- Resolver Cases -->
+        <mxCell id="resolver_gen" value="export_st_ready_resolver_cases.py" style="swimlane;startSize=25;fillColor=#e1f5fe;strokeColor=#0277bd;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="60" width="550" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="resolver_logic" value="Generation Logic:&#xa;&#xa;1. For each closed issue with state=closed:&#xa;   a. Find linked PRs from links JSON&#xa;   b. Find linked commits from links JSON&#xa;   c. Score link confidence (high/medium/low)&#xa;   d. Determine resolution_status:&#xa;      - merged_fix (PR merged with changed files)&#xa;      - candidate_fix (PR exists, not merged or no file evidence)&#xa;      - reference_only (commit only, no PR)&#xa;&#xa;2. Build resolver_card_text:&#xa;   Problem → Context → Signal → Assessment →&#xa;   Candidate PRs → Commit evidence → PR description&#xa;&#xa;3. Attach files_evidence:&#xa;   - PR changed files list&#xa;   - Cross-reference with docs_files for metadata&#xa;   - Compute match_rate&#xa;&#xa;4. Extract: impacted_modules[], impacted_boards[],&#xa;   primary_changed_file, primary_pr_number" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#0277bd;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="resolver_gen">
+          <mxGeometry x="10" y="35" width="530" height="235" as="geometry" />
+        </mxCell>
+        <!-- Diagnostic Cards -->
+        <mxCell id="diag_gen" value="export_st_ready_diagnostic_cards.py" style="swimlane;startSize=25;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="340" y="380" width="550" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="diag_logic" value="Generation Logic:&#xa;&#xa;1. Select issues with high evidence_strength OR&#xa;   issues that have resolver cases with merged_fix&#xa;&#xa;2. Generate diagnostic card fields:&#xa;   - label: concise problem statement&#xa;   - query_aliases[]: alternate phrasings for retrieval&#xa;   - keywords[]: technical anchors (API names, error codes)&#xa;   - evidence_refs[]: linked issues/PRs/commits&#xa;   - diagnostic_text: structured analysis&#xa;&#xa;3. Diagnostic text template:&#xa;   Symptom → Root Cause → Resolution →&#xa;   Affected Configuration → Validation Steps&#xa;&#xa;4. Quality filters:&#xa;   - Skip issues with severity=low AND evidence=low&#xa;   - Require minimum body length&#xa;   - Deduplicate near-identical diagnostics&#xa;&#xa;Output: st_ready_diagnostic_cards_{repo}.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#7b1fa2;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="diag_gen">
+          <mxGeometry x="10" y="35" width="530" height="255" as="geometry" />
+        </mxCell>
+        <!-- delivery_paths.py -->
+        <mxCell id="paths" value="delivery_paths.py&#xa;&#xa;_REPO_TO_SERIES mapping:&#xa;stm32f4xx-hal-driver → stm32cubef4&#xa;cmsis_device_f4 → stm32cubef4&#xa;32f401cdiscovery-bsp → stm32cubef4&#xa;...&#xa;&#xa;Routes output to:&#xa;by_series/&lt;parent&gt;/drivers/&lt;sub-repo&gt;/" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="980" y="80" width="300" height="180" as="geometry" />
+        </mxCell>
+        <!-- Output structure -->
+        <mxCell id="output" value="Output Structure:&#xa;&#xa;datasets/07_delivery/st_ready/by_series/&#xa;├── stm32cubef4/&#xa;│   ├── issues_json/st_ready_issues_stm32cubef4.json&#xa;│   ├── files_json/st_ready_files_stm32cubef4.json&#xa;│   ├── resolver_cases_json/st_ready_resolver_cases_stm32cubef4.json&#xa;│   ├── diagnostic_cards_json/st_ready_diagnostic_cards_stm32cubef4.json&#xa;│   └── drivers/&#xa;│       ├── stm32f4xx-hal-driver/{issues,files,resolver,diag}_json/&#xa;│       ├── cmsis_device_f4/{issues,files,resolver,diag}_json/&#xa;│       └── 13x BSP repos/...&#xa;├── stm32cubeh5/ (same structure)&#xa;├── stm32cubeu5/ (same structure)&#xa;└── stm32cubewl/ (same structure)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#283593;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="980" y="300" width="450" height="280" as="geometry" />
+        </mxCell>
+        <!-- Arrows -->
+        <mxCell id="a1" style="strokeWidth=1.5;strokeColor=#e65100;" edge="1" source="in_issues" target="resolver_gen" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a2" style="strokeWidth=1.5;strokeColor=#0277bd;" edge="1" source="in_links" target="resolver_gen" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a3" style="strokeWidth=1.5;strokeColor=#2e7d32;" edge="1" source="in_files" target="resolver_gen" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a4" style="strokeWidth=1.5;strokeColor=#7b1fa2;dashed=1;" edge="1" source="resolver_gen" target="diag_gen" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a5" style="strokeWidth=2;strokeColor=#283593;" edge="1" source="resolver_gen" target="output" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a6" style="strokeWidth=2;strokeColor=#283593;" edge="1" source="diag_gen" target="output" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

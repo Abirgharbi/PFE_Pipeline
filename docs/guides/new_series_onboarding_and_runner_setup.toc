@@ -1,0 +1,32 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {1}Objet du rapport}{2}{section.1}%
+\contentsline {section}{\numberline {2}Perimetre technique}{2}{section.2}%
+\contentsline {section}{\numberline {3}Fichiers a modifier}{2}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Configuration}{2}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Scripts workflow}{2}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Workflows CI/CD}{2}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Definition des champs de configuration}{2}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Fichier \texttt {config\_<serie>.json}}{2}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Fichier \texttt {config\_all\_series.json}}{3}{subsection.4.2}%
+\contentsline {section}{\numberline {5}Source des informations: repos, urls, refs}{3}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Commandes de collecte}{3}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Regles de remplissage}{3}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Procedure d'integration d'une nouvelle serie}{4}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Etape 1: creation du fichier config serie}{4}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Etape 2: declaration globale}{4}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Etape 3: mapping scripts}{4}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Etape 4: mapping batch Python}{4}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Etape 5: mapping GitHub Actions}{4}{subsection.6.5}%
+\contentsline {section}{\numberline {7}Validation fonctionnelle}{4}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Prepare}{4}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Split composant}{4}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Controle couverture et doublons}{4}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Upload composant}{5}{subsection.7.4}%
+\contentsline {section}{\numberline {8}Test sur une autre machine (self-hosted runner)}{5}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Prerequis}{5}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Installation projet}{5}{subsection.8.2}%
+\contentsline {subsection}{\numberline {8.3}Runner et configuration}{5}{subsection.8.3}%
+\contentsline {subsection}{\numberline {8.4}Test de bout en bout}{5}{subsection.8.4}%
+\contentsline {section}{\numberline {9}Mode migration vers datasources par composant}{5}{section.9}%
+\contentsline {section}{\numberline {10}Checklist Go/No-Go}{6}{section.10}%
+\contentsline {section}{\numberline {11}Points d'attention}{6}{section.11}%

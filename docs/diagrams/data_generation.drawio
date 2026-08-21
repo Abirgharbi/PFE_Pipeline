@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-11T10:00:00.000Z" agent="Mozilla/5.0" version="21.0.0" type="device">
+  <diagram id="data-generation" name="Data Generation — New Data from Existing Data">
+    <mxGraphModel dx="1300" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Data Generation — Creating New Knowledge from Existing Data&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="350" y="20" width="480" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Existing Data (input) -->
+        <mxCell id="input-group" value="&lt;b&gt;ENRICHED DATA (input)&lt;/b&gt;&lt;br&gt;&lt;i&gt;Already processed by pipeline&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="80" y="80" width="280" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="input1" value="&lt;b&gt;Enriched Issues&lt;/b&gt;&lt;br&gt;with layer, severity, board,&lt;br&gt;component, is_valid,&lt;br&gt;related_issue_ids" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="100" y="120" width="240" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="input2" value="&lt;b&gt;Enriched Files&lt;/b&gt;&lt;br&gt;README, Release Notes,&lt;br&gt;PDFs with extracted text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="100" y="200" width="240" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="input3" value="&lt;b&gt;Similarity Links&lt;/b&gt;&lt;br&gt;related_issue_ids" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="100" y="270" width="240" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Data Generation Process -->
+        <mxCell id="process" value="&lt;b&gt;DATA GENERATION&lt;/b&gt;&lt;br&gt;&lt;b&gt;STAGE&lt;/b&gt;&lt;br&gt;&lt;br&gt;Synthesize new&lt;br&gt;support artifacts&lt;br&gt;from enriched data" style="shape=process;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="460" y="140" width="180" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Generated outputs -->
+        <mxCell id="output-group" value="&lt;b&gt;NEW DATA GENERATED (output)&lt;/b&gt;&lt;br&gt;&lt;i&gt;Did NOT exist in raw sources&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;verticalAlign=top;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="740" y="70" width="320" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="output1" value="&lt;b&gt;Diagnostic Cards&lt;/b&gt;&lt;br&gt;• Root cause analysis&lt;br&gt;• Symptoms description&lt;br&gt;• Resolution steps&lt;br&gt;• Related issues links&lt;br&gt;• Query aliases for search" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="760" y="110" width="280" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="output2" value="&lt;b&gt;Resolver Cases&lt;/b&gt;&lt;br&gt;• Step-by-step resolution workflow&lt;br&gt;• Confirmed fix from issue thread&lt;br&gt;• Applicable firmware versions&lt;br&gt;• Workaround instructions" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="760" y="225" width="280" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Also generated -->
+        <mxCell id="also" value="&lt;b&gt;Also generated:&lt;/b&gt;&lt;br&gt;• Image descriptions (LLM Vision)&lt;br&gt;• ST-ready JSON exports&lt;br&gt;• Summary reports" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="740" y="380" width="320" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Key message -->
+        <mxCell id="message" value="&lt;b&gt;KEY INSIGHT:&lt;/b&gt; These are entirely new documents — not copies of raw data.&lt;br&gt;They are &lt;i&gt;synthesized&lt;/i&gt; from multiple enriched sources into actionable support knowledge." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="200" y="400" width="450" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=2;" edge="1" source="input-group" target="process" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;strokeWidth=2;" edge="1" source="process" target="output-group" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

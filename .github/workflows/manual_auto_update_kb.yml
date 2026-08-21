@@ -1,0 +1,925 @@
+name: Manual Auto Update KB
+
+on:
+  workflow_dispatch:
+    inputs:
+      series:
+        description: 'Comma-separated series codes (ex: H7,U5,WB). Allowed values are loaded from shared/config/config_all_series.json'
+        required: false
+        default: ''
+      mode:
+        description: 'Execution mode for per-series script'
+        type: choice
+        required: false
+        options:
+          - Full
+          - Prepare
+          - Upload
+        default: Full
+      existing_datasource_mode:
+        description: 'Behavior when datasource already exists (Replace=refresh, Add=append)'
+        type: choice
+        required: false
+        options:
+          - Replace
+          - Add
+        default: Replace
+      skip_drivers:
+        description: 'Skip driver/subrepo uploads'
+        type: boolean
+        default: false
+      skip_schema_validation:
+        description: 'Skip schema validation gate'
+        type: boolean
+        default: false
+      continue_on_workflow_error:
+        description: 'Continue inside run_full_workflow when one repo fails'
+        type: boolean
+        default: false
+      placeholder_policy:
+        description: 'Policy for unresolved Alfred placeholders'
+        type: choice
+        required: false
+        options:
+          - Fail
+          - Warn
+          - Off
+        default: Fail
+      enable_issues_by_component_flow:
+        description: 'Enable split+upload of issues datasources by component'
+        type: boolean
+        default: false
+      component_issues_only:
+        description: 'Skip monolithic issues datasource and keep only per-component issues datasources'
+        type: boolean
+        default: false
+      max_parallel:
+        description: 'Maximum series jobs in parallel'
+        required: false
+        default: '1'
+      upload_execution_target:
+        description: 'Upload runner target (default self-hosted, optional github-hosted for cloud test)'
+        type: choice
+        required: false
+        options:
+          - self-hosted
+          - github-hosted
+        default: self-hosted
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  prepare:
+    name: Prepare matrix inputs
+    runs-on: ubuntu-latest
+    outputs:
+      series_json: ${{ steps.normalize.outputs.series_json }}
+      mode: ${{ steps.normalize.outputs.mode }}
+      existing_datasource_mode: ${{ steps.normalize.outputs.existing_datasource_mode }}
+      skip_drivers: ${{ steps.normalize.outputs.skip_drivers }}
+      skip_schema_validation: ${{ steps.normalize.outputs.skip_schema_validation }}
+      continue_on_workflow_error: ${{ steps.normalize.outputs.continue_on_workflow_error }}
+      placeholder_policy: ${{ steps.normalize.outputs.placeholder_policy }}
+      enable_issues_by_component_flow: ${{ steps.normalize.outputs.enable_issues_by_component_flow }}
+      component_issues_only: ${{ steps.normalize.outputs.component_issues_only }}
+      max_parallel: ${{ steps.normalize.outputs.max_parallel }}
+      upload_execution_target: ${{ steps.normalize.outputs.upload_execution_target }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Normalize workflow inputs
+        id: normalize
+        shell: bash
+        run: |
+          raw_series='${{ inputs.series }}'
+          mode='${{ inputs.mode }}'
+          existing_ds_mode='${{ inputs.existing_datasource_mode }}'
+          skip_drivers='${{ inputs.skip_drivers }}'
+          skip_schema='${{ inputs.skip_schema_validation }}'
+          continue_err='${{ inputs.continue_on_workflow_error }}'
+          placeholder='${{ inputs.placeholder_policy }}'
+          enable_component_flow='${{ inputs.enable_issues_by_component_flow }}'
+          component_issues_only='${{ inputs.component_issues_only }}'
+          max_parallel='${{ inputs.max_parallel }}'
+          upload_target='${{ inputs.upload_execution_target }}'
+
+          if [ -z "$upload_target" ]; then
+            upload_target='self-hosted'
+          fi
+          if [ "$upload_target" != "self-hosted" ] && [ "$upload_target" != "github-hosted" ]; then
+            echo "Unsupported upload_execution_target: $upload_target"
+            exit 1
+          fi
+
+          series_json=$(RAW_SERIES="$raw_series" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          cfg_path = Path("shared/config/config_all_series.json")
+          if not cfg_path.exists():
+            raise SystemExit(f"Missing config file: {cfg_path}")
+
+          cfg = json.loads(cfg_path.read_text(encoding="utf-8-sig"))
+          all_series = cfg.get("all_series", [])
+          if not isinstance(all_series, list) or not all_series:
+            raise SystemExit("config_all_series.json: 'all_series' is missing or empty")
+
+          allowed = []
+          seen_allowed = set()
+          for name in all_series:
+            if not isinstance(name, str):
+              continue
+            if not name.startswith("STM32Cube"):
+              continue
+            code = name.replace("STM32Cube", "", 1).upper().strip()
+            if not code or code in seen_allowed:
+              continue
+            seen_allowed.add(code)
+            allowed.append(code)
+
+          if not allowed:
+            raise SystemExit("No valid STM32Cube series codes derived from config_all_series.json")
+
+          raw = os.environ.get("RAW_SERIES", "")
+          items = [s.strip().upper() for s in raw.split(",") if s.strip()]
+
+          if not items:
+            items = list(allowed)
+
+          seen = set()
+          normalized = []
+          for s in items:
+            if s not in seen_allowed:
+              raise SystemExit(f"Unsupported series '{s}'. Allowed: {', '.join(allowed)}")
+            if s in seen:
+              continue
+            seen.add(s)
+            normalized.append(s)
+
+          print(json.dumps(normalized))
+          PY
+          )
+
+          if [ -z "$max_parallel" ]; then
+            max_parallel='1'
+          fi
+
+          echo "series_json=$series_json" >> "$GITHUB_OUTPUT"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "existing_datasource_mode=$existing_ds_mode" >> "$GITHUB_OUTPUT"
+          echo "skip_drivers=$skip_drivers" >> "$GITHUB_OUTPUT"
+          echo "skip_schema_validation=$skip_schema" >> "$GITHUB_OUTPUT"
+          echo "continue_on_workflow_error=$continue_err" >> "$GITHUB_OUTPUT"
+          echo "placeholder_policy=$placeholder" >> "$GITHUB_OUTPUT"
+          echo "enable_issues_by_component_flow=$enable_component_flow" >> "$GITHUB_OUTPUT"
+          echo "component_issues_only=$component_issues_only" >> "$GITHUB_OUTPUT"
+          echo "max_parallel=$max_parallel" >> "$GITHUB_OUTPUT"
+          echo "upload_execution_target=$upload_target" >> "$GITHUB_OUTPUT"
+
+  runner-check:
+    name: Check self-hosted runner availability
+    runs-on: ubuntu-latest
+    outputs:
+      runner_ready: ${{ steps.check.outputs.runner_ready }}
+      online_count: ${{ steps.check.outputs.online_count }}
+      idle_count: ${{ steps.check.outputs.idle_count }}
+      busy_count: ${{ steps.check.outputs.busy_count }}
+      api_note: ${{ steps.check.outputs.api_note }}
+    steps:
+      - name: Detect online and idle self-hosted runners
+        id: check
+        env:
+          GH_RUNNER_CHECK_TOKEN: ${{ secrets.RUNNER_CHECK_TOKEN }}
+          GH_FALLBACK_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          attempts=30
+          sleep_seconds=10
+
+          runner_ready="false"
+          online_count="0"
+          idle_count="0"
+          busy_count="0"
+          api_note=""
+
+          token="$GH_RUNNER_CHECK_TOKEN"
+          if [ -z "$token" ]; then
+            token="$GH_FALLBACK_TOKEN"
+            api_note="using_github_token"
+          else
+            api_note="using_runner_check_token"
+          fi
+
+          if [ -z "$token" ]; then
+            echo "runner_ready=false" >> "$GITHUB_OUTPUT"
+            echo "online_count=0" >> "$GITHUB_OUTPUT"
+            echo "idle_count=0" >> "$GITHUB_OUTPUT"
+            echo "busy_count=0" >> "$GITHUB_OUTPUT"
+            echo "api_note=missing_token" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          for attempt in $(seq 1 "$attempts"); do
+            http_code=$(curl -sS -o /tmp/runners_response.json -w "%{http_code}" \
+              -H "Authorization: Bearer $token" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/actions/runners" || true)
+
+            if [ "$http_code" != "200" ]; then
+              if [ "$http_code" = "403" ]; then
+                runner_ready="true"
+                api_note="http_status_403_assume_available"
+                break
+              fi
+              api_note="http_status_$http_code"
+              if [ "$attempt" -lt "$attempts" ]; then
+                sleep "$sleep_seconds"
+                continue
+              fi
+              break
+            fi
+
+            response=$(cat /tmp/runners_response.json)
+
+            parsed=$(RUNNERS_JSON="$response" python - <<'PY'
+          import json
+          import os
+          import sys
+
+          try:
+            payload = json.loads(os.environ.get("RUNNERS_JSON", ""))
+          except Exception as exc:
+            print(f"error|invalid-json:{exc}|0|0|0")
+            sys.exit(0)
+
+          runners = payload.get("runners")
+          if not isinstance(runners, list):
+            msg = str(payload.get("message") or "missing runners array")
+            print(f"error|{msg}|0|0|0")
+            sys.exit(0)
+
+          runners = payload.get("runners", [])
+          online = []
+          idle = []
+          busy = []
+          for r in runners:
+            if r.get("status") != "online":
+              continue
+            labels = {str(lbl.get("name", "")).lower() for lbl in r.get("labels", [])}
+            if "self-hosted" in labels:
+              online.append(r)
+              if bool(r.get("busy", False)):
+                busy.append(r)
+              else:
+                idle.append(r)
+
+          print(f"ok|{str(bool(idle)).lower()}|{len(online)}|{len(idle)}|{len(busy)}")
+          PY
+            )
+
+            status="${parsed%%|*}"
+            rest="${parsed#*|}"
+
+            if [ "$status" = "ok" ]; then
+              runner_ready="${rest%%|*}"
+              rest="${rest#*|}"
+              online_count="${rest%%|*}"
+              rest="${rest#*|}"
+              idle_count="${rest%%|*}"
+              busy_count="${rest##*|}"
+              api_note="ok"
+
+              if [ "$runner_ready" = "true" ]; then
+                break
+              fi
+            else
+              api_note="$rest"
+            fi
+
+            if [ "$attempt" -lt "$attempts" ]; then
+              sleep "$sleep_seconds"
+            fi
+          done
+
+          echo "runner_ready=$runner_ready" >> "$GITHUB_OUTPUT"
+          echo "online_count=$online_count" >> "$GITHUB_OUTPUT"
+          echo "idle_count=$idle_count" >> "$GITHUB_OUTPUT"
+          echo "busy_count=$busy_count" >> "$GITHUB_OUTPUT"
+          echo "api_note=$api_note" >> "$GITHUB_OUTPUT"
+
+  preprocess-series:
+    name: ${{ format('Preprocess {0}', matrix.series) }}
+    needs: [prepare, runner-check]
+    if: needs.prepare.outputs.upload_execution_target == 'github-hosted' || needs.runner-check.outputs.runner_ready == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(needs.prepare.outputs.max_parallel) }}
+      matrix:
+        series: ${{ fromJSON(needs.prepare.outputs.series_json) }}
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: false
+          submodules: false
+          persist-credentials: false
+
+      - name: GitHub API rate-limit preflight
+        shell: powershell
+        run: |
+          if (-not $env:GITHUB_TOKEN) {
+            throw "GITHUB_TOKEN is not available in preprocess job."
+          }
+          $headers = @{ Authorization = "Bearer $env:GITHUB_TOKEN"; Accept = "application/vnd.github+json" }
+          $resp = Invoke-RestMethod -Uri "https://api.github.com/rate_limit" -Headers $headers -Method Get
+          $remaining = [int]$resp.resources.core.remaining
+          $limit = [int]$resp.resources.core.limit
+          $reset = [int64]$resp.resources.core.reset
+          $resetUtc = [DateTimeOffset]::FromUnixTimeSeconds($reset).UtcDateTime
+          Write-Host "GitHub core rate-limit: $remaining/$limit, reset at $resetUtc"
+          if ($remaining -lt 100) {
+            throw "Insufficient GitHub API quota for ingestion ($remaining/$limit). Re-run later."
+          }
+
+      - name: Enable long paths (Windows)
+        shell: powershell
+        run: git config --system core.longpaths true
+
+      - name: Resolve runner Python
+        shell: powershell
+        run: |
+          $venvPy = Join-Path $env:GITHUB_WORKSPACE ".venv\Scripts\python.exe"
+          if (Test-Path -LiteralPath $venvPy) {
+            $pythonExe = $venvPy
+          } else {
+            $cmd = Get-Command python -ErrorAction SilentlyContinue
+            if ($null -eq $cmd) {
+              throw "Python was not found on self-hosted runner. Install Python 3.12+ or provide .venv\\Scripts\\python.exe."
+            }
+            $pythonExe = $cmd.Source
+          }
+
+          "RUNNER_PYTHON_EXE=$pythonExe" >> $env:GITHUB_ENV
+          & $pythonExe --version
+
+      - name: Install dependencies
+        shell: powershell
+        run: |
+          & $env:RUNNER_PYTHON_EXE -m pip install --upgrade pip
+          & $env:RUNNER_PYTHON_EXE -m pip install -r requirements.txt
+
+      - name: Python syntax gate (pipeline + automation)
+        shell: powershell
+        run: |
+          $files = Get-ChildItem -Recurse -File -Include *.py -Path pipeline,pipeline_Automation,shared |
+            Where-Object { $_.FullName -notmatch "__pycache__" }
+          if (-not $files -or $files.Count -eq 0) {
+            throw "No Python files found for syntax gate."
+          }
+          foreach ($f in $files) {
+            & $env:RUNNER_PYTHON_EXE -m py_compile $f.FullName
+            if ($LASTEXITCODE -ne 0) {
+              throw "py_compile failed: $($f.FullName)"
+            }
+          }
+          Write-Host "Syntax gate passed for $($files.Count) files." -ForegroundColor Green
+
+      - name: Run preprocessing only
+        if: needs.prepare.outputs.mode != 'Upload'
+        shell: powershell
+        run: |
+          $script = "pipeline_Automation/workflow/Run_Single_Series_Full_Pipeline_And_Upload.ps1"
+          $scriptArgs = @{
+            Series = "${{ matrix.series }}"
+            Mode = "Prepare"
+            PlaceholderPolicy = "Off"
+            SkipAlfredEnrichment = $true
+            SkipPlaceholderGate = $true
+          }
+
+          if ("${{ needs.prepare.outputs.skip_schema_validation }}" -eq "true") {
+            $scriptArgs.SkipSchemaValidation = $true
+          }
+          if ("${{ needs.prepare.outputs.continue_on_workflow_error }}" -eq "true") {
+            $scriptArgs.ContinueOnWorkflowError = $true
+          }
+          if ("${{ needs.prepare.outputs.enable_issues_by_component_flow }}" -eq "true") {
+            $scriptArgs.EnableIssuesByComponentFlow = $true
+          }
+          if ("${{ needs.prepare.outputs.component_issues_only }}" -eq "true") {
+            $scriptArgs.ComponentIssuesOnly = $true
+          }
+
+          Write-Host "Running preprocess for series $($scriptArgs.Series)" -ForegroundColor Cyan
+          & $script @scriptArgs
+
+      - name: Upload series artifacts
+        if: needs.prepare.outputs.mode != 'Upload'
+        uses: actions/upload-artifact@v4
+        with:
+          name: st-ready-${{ matrix.series }}-${{ github.run_number }}
+          path: datasets/07_delivery/st_ready/by_series/
+          if-no-files-found: warn
+          retention-days: 30
+
+  upload-series-selfhosted:
+    name: ${{ format('Upload {0} (self-hosted)', matrix.series) }}
+    needs: [prepare, preprocess-series, runner-check]
+    if: needs.prepare.outputs.mode != 'Prepare' && needs.prepare.outputs.upload_execution_target == 'self-hosted' && needs.runner-check.outputs.runner_ready == 'true'
+    runs-on: self-hosted
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(needs.prepare.outputs.max_parallel) }}
+      matrix:
+        series: ${{ fromJSON(needs.prepare.outputs.series_json) }}
+    env:
+      ST_GITHUB_ANALYZER_API_KEY: ${{ secrets.ST_GITHUB_ANALYZER_API_KEY }}
+      ST_CHATGPT_API_KEY: ${{ secrets.ST_CHATGPT_API_KEY }}
+      ST_AI_BRIDGE_API_KEY: ${{ secrets.ST_AI_BRIDGE_API_KEY }}
+      ST_API_KEY: ${{ secrets.ST_API_KEY }}
+      ST_REMOTE_USER: ${{ secrets.ST_REMOTE_USER }}
+    steps:
+      - name: Reset self-hosted workspace before checkout
+        shell: powershell
+        run: |
+          if (Test-Path -LiteralPath $env:GITHUB_WORKSPACE) {
+            Write-Host "Cleaning workspace: $env:GITHUB_WORKSPACE" -ForegroundColor Yellow
+            Get-ChildItem -LiteralPath $env:GITHUB_WORKSPACE -Force -ErrorAction SilentlyContinue |
+              Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          submodules: false
+          persist-credentials: false
+          lfs: true
+          fetch-depth: 1
+
+      - name: Enable long paths (Windows)
+        shell: powershell
+        run: git config --system core.longpaths true
+
+      - name: Resolve runner Python
+        shell: powershell
+        run: |
+          $venvPy = Join-Path $env:GITHUB_WORKSPACE ".venv\Scripts\python.exe"
+          if (Test-Path -LiteralPath $venvPy) {
+            $pythonExe = $venvPy
+          } else {
+            $cmd = Get-Command python -ErrorAction SilentlyContinue
+            if ($null -eq $cmd) {
+              throw "Python was not found on self-hosted runner. Install Python 3.12+ or provide .venv\\Scripts\\python.exe."
+            }
+            $pythonExe = $cmd.Source
+          }
+
+          "RUNNER_PYTHON_EXE=$pythonExe" >> $env:GITHUB_ENV
+          & $pythonExe --version
+
+      - name: Install dependencies
+        shell: powershell
+        run: |
+          & $env:RUNNER_PYTHON_EXE -m pip install --upgrade pip
+          & $env:RUNNER_PYTHON_EXE -m pip install -r requirements.txt
+
+      - name: Python syntax gate (pipeline + automation)
+        shell: powershell
+        run: |
+          $files = Get-ChildItem -Recurse -File -Include *.py -Path pipeline,pipeline_Automation,shared |
+            Where-Object { $_.FullName -notmatch "__pycache__" }
+          if (-not $files -or $files.Count -eq 0) {
+            throw "No Python files found for syntax gate."
+          }
+          foreach ($f in $files) {
+            & $env:RUNNER_PYTHON_EXE -m py_compile $f.FullName
+            if ($LASTEXITCODE -ne 0) {
+              throw "py_compile failed: $($f.FullName)"
+            }
+          }
+          Write-Host "Syntax gate passed for $($files.Count) files." -ForegroundColor Green
+
+      - name: Download preprocessed artifacts
+        if: needs.prepare.outputs.mode == 'Full'
+        uses: actions/download-artifact@v4
+        with:
+          name: st-ready-${{ matrix.series }}-${{ github.run_number }}
+          path: datasets/07_delivery/st_ready/by_series/
+
+      - name: Alfred API key preflight
+        shell: powershell
+        run: |
+          if ($env:ST_CHATGPT_API_KEY -or $env:ST_AI_BRIDGE_API_KEY -or $env:ST_API_KEY) {
+            Write-Host "Alfred API key detected in workflow env." -ForegroundColor Green
+            exit 0
+          }
+          throw "Missing Alfred API key in workflow env. Define one of repo secrets: ST_CHATGPT_API_KEY, ST_AI_BRIDGE_API_KEY, ST_API_KEY."
+
+      - name: Alfred connectivity preflight
+        id: alfred_net_check
+        shell: powershell
+        run: |
+          $targetUrl = "https://api-ai-bridge.st.com/chatgpt/api/client-apps"
+          $proxyUrl = "http://185.46.212.88:80"
+
+          function Test-Endpoint {
+            param(
+              [string]$Url,
+              [string]$Proxy = ""
+            )
+
+            try {
+              $request = @{
+                Uri = $Url
+                Method = "Get"
+                UseBasicParsing = $true
+                TimeoutSec = 20
+              }
+              if ($Proxy) {
+                $request.Proxy = $Proxy
+              }
+
+              $response = Invoke-WebRequest @request
+              Write-Host "Reachable: $Url (status $($response.StatusCode))"
+              return $true
+            }
+            catch {
+              $msg = $_.Exception.Message
+              if ($msg -match "401|403|404|405") {
+                Write-Host "Reachable (HTTP auth/method response): $Url ($msg)"
+                return $true
+              }
+              Write-Host "Unreachable: $Url ($msg)"
+              return $false
+            }
+          }
+
+          $proxyOk = Test-Endpoint -Url $targetUrl -Proxy $proxyUrl
+          $directOk = Test-Endpoint -Url $targetUrl
+
+          if ($proxyOk) {
+            "use_proxy=true" >> $env:GITHUB_OUTPUT
+            Write-Host "Selected Alfred network mode: proxy" -ForegroundColor Green
+            exit 0
+          }
+
+          if ($directOk) {
+            "use_proxy=false" >> $env:GITHUB_OUTPUT
+            Write-Host "Selected Alfred network mode: direct" -ForegroundColor Yellow
+            exit 0
+          }
+
+          throw "Alfred endpoint unreachable (direct and proxy)."
+
+      - name: Select analyzer upload auth key
+        shell: powershell
+        run: |
+          if (-not $env:ST_GITHUB_ANALYZER_API_KEY) {
+            throw "Missing ST_GITHUB_ANALYZER_API_KEY secret for upload phase."
+          }
+
+          # Keep Alfred credentials untouched. Use dedicated upload auth vars.
+          "UPLOAD_API_KEY=$($env:ST_GITHUB_ANALYZER_API_KEY)" >> $env:GITHUB_ENV
+          "UPLOAD_CLIENT_APP_NAME=mdrf_st_github_analyzer" >> $env:GITHUB_ENV
+
+          Write-Host "Selected upload API key source: ST_GITHUB_ANALYZER_API_KEY" -ForegroundColor Green
+          Write-Host "Selected upload client app: mdrf_st_github_analyzer" -ForegroundColor Green
+
+      - name: Upload auth precheck (kb-list)
+        shell: powershell
+        run: |
+          $remoteUser = $env:ST_REMOTE_USER
+          if (-not $remoteUser) {
+            $remoteUser = "abir.gharbi@st.com"
+            Write-Host "[WARN] ST_REMOTE_USER is empty; using fallback remote user for auth precheck." -ForegroundColor Yellow
+          }
+
+          $args = @(
+            "pipeline_Automation/upload/Add_Data_Source_Files.py",
+            "--kb", "793",
+            "--operation", "add",
+            "--remote-user", $remoteUser,
+            "--service", "kb",
+            "--api-key", $env:UPLOAD_API_KEY,
+            "--client-app-name", $env:UPLOAD_CLIENT_APP_NAME,
+            "--auth-check-only",
+            "--timeout", "120"
+          )
+
+          & $env:RUNNER_PYTHON_EXE @args
+          if ($LASTEXITCODE -ne 0) {
+            throw "Upload auth precheck failed with exit code $LASTEXITCODE"
+          }
+
+      - name: Run upload only
+        shell: powershell
+        run: |
+          $script = "pipeline_Automation/workflow/Run_Single_Series_Full_Pipeline_And_Upload.ps1"
+          $useProxy = "${{ steps.alfred_net_check.outputs.use_proxy }}" -eq "true"
+          $remoteUser = $env:ST_REMOTE_USER
+          if (-not $remoteUser) {
+            Write-Host "[WARN] ST_REMOTE_USER secret is not set. Falling back to default RemoteUser from script." -ForegroundColor Yellow
+          }
+          $scriptArgs = @{
+            Series = "${{ matrix.series }}"
+            Mode = "Upload"
+            ExistingDatasourceMode = "${{ needs.prepare.outputs.existing_datasource_mode }}"
+            ApiKey = $env:UPLOAD_API_KEY
+            ClientAppName = $env:UPLOAD_CLIENT_APP_NAME
+            KbId = 793
+            PythonExe = $env:RUNNER_PYTHON_EXE
+            JsonSplitSize = 1000
+            PlaceholderPolicy = "${{ needs.prepare.outputs.placeholder_policy }}"
+            RunAlfredBeforeUpload = $true
+            UseAlfredProxy = $useProxy
+          }
+
+          if ($remoteUser) {
+            $scriptArgs.RemoteUser = $remoteUser
+          }
+
+          if ("${{ needs.prepare.outputs.skip_drivers }}" -eq "true") {
+            $scriptArgs.SkipDrivers = $true
+          }
+          if ("${{ needs.prepare.outputs.skip_schema_validation }}" -eq "true") {
+            $scriptArgs.SkipSchemaValidation = $true
+          }
+          if ("${{ needs.prepare.outputs.continue_on_workflow_error }}" -eq "true") {
+            $scriptArgs.ContinueOnWorkflowError = $true
+          }
+          if ("${{ needs.prepare.outputs.enable_issues_by_component_flow }}" -eq "true") {
+            $scriptArgs.EnableIssuesByComponentFlow = $true
+          }
+          if ("${{ needs.prepare.outputs.component_issues_only }}" -eq "true") {
+            $scriptArgs.ComponentIssuesOnly = $true
+          }
+
+          Write-Host "Running upload for series $($scriptArgs.Series)" -ForegroundColor Cyan
+          & $script @scriptArgs
+
+  upload-series-githubhosted:
+    name: ${{ format('Upload {0} (github-hosted)', matrix.series) }}
+    needs: [prepare, preprocess-series, runner-check]
+    if: needs.prepare.outputs.mode != 'Prepare' && needs.prepare.outputs.upload_execution_target == 'github-hosted'
+    runs-on: windows-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(needs.prepare.outputs.max_parallel) }}
+      matrix:
+        series: ${{ fromJSON(needs.prepare.outputs.series_json) }}
+    env:
+      ST_GITHUB_ANALYZER_API_KEY: ${{ secrets.ST_GITHUB_ANALYZER_API_KEY }}
+      ST_CHATGPT_API_KEY: ${{ secrets.ST_CHATGPT_API_KEY }}
+      ST_AI_BRIDGE_API_KEY: ${{ secrets.ST_AI_BRIDGE_API_KEY }}
+      ST_API_KEY: ${{ secrets.ST_API_KEY }}
+      ST_REMOTE_USER: ${{ secrets.ST_REMOTE_USER }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: true
+          submodules: false
+          persist-credentials: false
+          lfs: true
+          fetch-depth: 1
+
+      - name: Enable long paths (Windows)
+        shell: powershell
+        run: git config --system core.longpaths true
+
+      - name: Resolve runner Python
+        shell: powershell
+        run: |
+          $venvPy = Join-Path $env:GITHUB_WORKSPACE ".venv\Scripts\python.exe"
+          if (Test-Path -LiteralPath $venvPy) {
+            $pythonExe = $venvPy
+          } else {
+            $cmd = Get-Command python -ErrorAction SilentlyContinue
+            if ($null -eq $cmd) {
+              throw "Python was not found on github-hosted runner."
+            }
+            $pythonExe = $cmd.Source
+          }
+
+          "RUNNER_PYTHON_EXE=$pythonExe" >> $env:GITHUB_ENV
+          & $pythonExe --version
+
+      - name: Install dependencies
+        shell: powershell
+        run: |
+          & $env:RUNNER_PYTHON_EXE -m pip install --upgrade pip
+          & $env:RUNNER_PYTHON_EXE -m pip install -r requirements.txt
+
+      - name: Python syntax gate (pipeline + automation)
+        shell: powershell
+        run: |
+          $files = Get-ChildItem -Recurse -File -Include *.py -Path pipeline,pipeline_Automation,shared |
+            Where-Object { $_.FullName -notmatch "__pycache__" }
+          if (-not $files -or $files.Count -eq 0) {
+            throw "No Python files found for syntax gate."
+          }
+          foreach ($f in $files) {
+            & $env:RUNNER_PYTHON_EXE -m py_compile $f.FullName
+            if ($LASTEXITCODE -ne 0) {
+              throw "py_compile failed: $($f.FullName)"
+            }
+          }
+          Write-Host "Syntax gate passed for $($files.Count) files." -ForegroundColor Green
+
+      - name: Download preprocessed artifacts
+        if: needs.prepare.outputs.mode == 'Full'
+        uses: actions/download-artifact@v4
+        with:
+          name: st-ready-${{ matrix.series }}-${{ github.run_number }}
+          path: datasets/07_delivery/st_ready/by_series/
+
+      - name: Alfred API key preflight
+        shell: powershell
+        run: |
+          if ($env:ST_CHATGPT_API_KEY -or $env:ST_AI_BRIDGE_API_KEY -or $env:ST_API_KEY) {
+            Write-Host "Alfred API key detected in workflow env." -ForegroundColor Green
+            exit 0
+          }
+          throw "Missing Alfred API key in workflow env. Define one of repo secrets: ST_CHATGPT_API_KEY, ST_AI_BRIDGE_API_KEY, ST_API_KEY."
+
+      - name: Alfred connectivity preflight
+        id: alfred_net_check
+        shell: powershell
+        run: |
+          $targetUrl = "https://api-ai-bridge.st.com/chatgpt/api/client-apps"
+          $proxyUrl = "http://185.46.212.88:80"
+
+          function Test-Endpoint {
+            param(
+              [string]$Url,
+              [string]$Proxy = ""
+            )
+
+            try {
+              $request = @{
+                Uri = $Url
+                Method = "Get"
+                UseBasicParsing = $true
+                TimeoutSec = 20
+              }
+              if ($Proxy) {
+                $request.Proxy = $Proxy
+              }
+
+              $response = Invoke-WebRequest @request
+              Write-Host "Reachable: $Url (status $($response.StatusCode))"
+              return $true
+            }
+            catch {
+              $msg = $_.Exception.Message
+              if ($msg -match "401|403|404|405") {
+                Write-Host "Reachable (HTTP auth/method response): $Url ($msg)"
+                return $true
+              }
+              Write-Host "Unreachable: $Url ($msg)"
+              return $false
+            }
+          }
+
+          $proxyOk = Test-Endpoint -Url $targetUrl -Proxy $proxyUrl
+          $directOk = Test-Endpoint -Url $targetUrl
+
+          if ($proxyOk) {
+            "use_proxy=true" >> $env:GITHUB_OUTPUT
+            Write-Host "Selected Alfred network mode: proxy" -ForegroundColor Green
+            exit 0
+          }
+
+          if ($directOk) {
+            "use_proxy=false" >> $env:GITHUB_OUTPUT
+            Write-Host "Selected Alfred network mode: direct" -ForegroundColor Yellow
+            exit 0
+          }
+
+          throw "Alfred endpoint unreachable (direct and proxy)."
+
+      - name: Select analyzer upload auth key
+        shell: powershell
+        run: |
+          if (-not $env:ST_GITHUB_ANALYZER_API_KEY) {
+            throw "Missing ST_GITHUB_ANALYZER_API_KEY secret for upload phase."
+          }
+
+          "UPLOAD_API_KEY=$($env:ST_GITHUB_ANALYZER_API_KEY)" >> $env:GITHUB_ENV
+          "UPLOAD_CLIENT_APP_NAME=mdrf_st_github_analyzer" >> $env:GITHUB_ENV
+
+          Write-Host "Selected upload API key source: ST_GITHUB_ANALYZER_API_KEY" -ForegroundColor Green
+          Write-Host "Selected upload client app: mdrf_st_github_analyzer" -ForegroundColor Green
+
+      - name: Upload auth precheck (kb-list)
+        shell: powershell
+        run: |
+          $remoteUser = $env:ST_REMOTE_USER
+          if (-not $remoteUser) {
+            $remoteUser = "abir.gharbi@st.com"
+            Write-Host "[WARN] ST_REMOTE_USER is empty; using fallback remote user for auth precheck." -ForegroundColor Yellow
+          }
+
+          $args = @(
+            "pipeline_Automation/upload/Add_Data_Source_Files.py",
+            "--kb", "793",
+            "--operation", "add",
+            "--remote-user", $remoteUser,
+            "--service", "kb",
+            "--api-key", $env:UPLOAD_API_KEY,
+            "--client-app-name", $env:UPLOAD_CLIENT_APP_NAME,
+            "--auth-check-only",
+            "--timeout", "120"
+          )
+
+          & $env:RUNNER_PYTHON_EXE @args
+          if ($LASTEXITCODE -ne 0) {
+            throw "Upload auth precheck failed with exit code $LASTEXITCODE"
+          }
+
+      - name: Run upload only
+        shell: powershell
+        run: |
+          $script = "pipeline_Automation/workflow/Run_Single_Series_Full_Pipeline_And_Upload.ps1"
+          $useProxy = "${{ steps.alfred_net_check.outputs.use_proxy }}" -eq "true"
+          $remoteUser = $env:ST_REMOTE_USER
+          if (-not $remoteUser) {
+            Write-Host "[WARN] ST_REMOTE_USER secret is not set. Falling back to default RemoteUser from script." -ForegroundColor Yellow
+          }
+          $scriptArgs = @{
+            Series = "${{ matrix.series }}"
+            Mode = "Upload"
+            ExistingDatasourceMode = "${{ needs.prepare.outputs.existing_datasource_mode }}"
+            ApiKey = $env:UPLOAD_API_KEY
+            ClientAppName = $env:UPLOAD_CLIENT_APP_NAME
+            KbId = 793
+            PythonExe = $env:RUNNER_PYTHON_EXE
+            JsonSplitSize = 1000
+            PlaceholderPolicy = "${{ needs.prepare.outputs.placeholder_policy }}"
+            RunAlfredBeforeUpload = $true
+            UseAlfredProxy = $useProxy
+          }
+
+          if ($remoteUser) {
+            $scriptArgs.RemoteUser = $remoteUser
+          }
+
+          if ("${{ needs.prepare.outputs.skip_drivers }}" -eq "true") {
+            $scriptArgs.SkipDrivers = $true
+          }
+          if ("${{ needs.prepare.outputs.skip_schema_validation }}" -eq "true") {
+            $scriptArgs.SkipSchemaValidation = $true
+          }
+          if ("${{ needs.prepare.outputs.continue_on_workflow_error }}" -eq "true") {
+            $scriptArgs.ContinueOnWorkflowError = $true
+          }
+          if ("${{ needs.prepare.outputs.enable_issues_by_component_flow }}" -eq "true") {
+            $scriptArgs.EnableIssuesByComponentFlow = $true
+          }
+          if ("${{ needs.prepare.outputs.component_issues_only }}" -eq "true") {
+            $scriptArgs.ComponentIssuesOnly = $true
+          }
+
+          Write-Host "Running upload for series $($scriptArgs.Series)" -ForegroundColor Cyan
+          & $script @scriptArgs
+
+  runner-unavailable-notice:
+    name: Runner unavailable (upload skipped)
+    needs: [prepare, runner-check]
+    if: needs.prepare.outputs.mode != 'Prepare' && needs.prepare.outputs.upload_execution_target == 'self-hosted' && needs.runner-check.outputs.runner_ready != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Explain runner unavailability and fail fast
+        shell: bash
+        run: |
+          echo "## Upload Deferred: self-hosted runner unavailable" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Metric | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Runner ready (online + idle) | ${{ needs.runner-check.outputs.runner_ready }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Online self-hosted count | ${{ needs.runner-check.outputs.online_count }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Idle self-hosted count | ${{ needs.runner-check.outputs.idle_count }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Busy self-hosted count | ${{ needs.runner-check.outputs.busy_count }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Runner API note | ${{ needs.runner-check.outputs.api_note }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Upload was intentionally skipped to avoid indefinite queue waiting." >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+

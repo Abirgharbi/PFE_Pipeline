@@ -1,0 +1,2 @@
+query_id,query_text,latency_seconds,results_count,top1_score,top1_excerpt,error
+Q001,Q01. DMA transfer on STM32F4 corrupts data when source and destination are in same SRAM bank,0.389,0,,,"errorCode=2000, message=Invalid timestamp (exceed valid time window)"

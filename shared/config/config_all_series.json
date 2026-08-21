@@ -1,0 +1,217 @@
+﻿{
+    "owner":  "STMicroelectronics",
+    "all_series":  [
+                       "STM32CubeC0",
+                       "STM32CubeC5",
+                       "STM32CubeF0",
+                       "STM32CubeF1",
+                       "STM32CubeF2",
+                       "STM32CubeF3",
+                       "STM32CubeF4",
+                       "STM32CubeF7",
+                       "STM32CubeG0",
+                       "STM32CubeG4",
+                       "STM32CubeH5",
+                       "STM32CubeH7",
+                       "STM32CubeH7RS",
+                       "STM32CubeL0",
+                       "STM32CubeL1",
+                       "STM32CubeL4",
+                       "STM32CubeL5",
+                       "STM32CubeN6",
+                       "STM32CubeU0",
+                       "STM32CubeU3",
+                       "STM32CubeU5",
+                       "STM32CubeWB",
+                       "STM32CubeWB0",
+                       "STM32CubeWBA",
+                       "STM32CubeWL",
+                       "STM32CubeWL3"
+                   ],
+    "series_config_files":  {
+                                "STM32CubeC0":  "config_c0.json",
+                                "STM32CubeC5":  "config_c5.json",
+                                "STM32CubeF0":  "config_f0.json",
+                                "STM32CubeF1":  "config_f1.json",
+                                "STM32CubeF2":  "config_f2.json",
+                                "STM32CubeF3":  "config_f3.json",
+                                "STM32CubeF4":  "config_f4.json",
+                                "STM32CubeF7":  "config_f7.json",
+                                "STM32CubeG0":  "config_g0.json",
+                                "STM32CubeG4":  "config_g4.json",
+                                "STM32CubeH5":  "config_h5.json",
+                                "STM32CubeH7":  "config.json",
+                                "STM32CubeH7RS":  "config_h7rs.json",
+                                "STM32CubeL0":  "config_l0.json",
+                                "STM32CubeL1":  "config_l1.json",
+                                "STM32CubeL4":  "config_l4.json",
+                                "STM32CubeL5":  "config_l5.json",
+                                "STM32CubeN6":  "config_n6.json",
+                                "STM32CubeU0":  "config_u0.json",
+                                "STM32CubeU3":  "config_u3.json",
+                                "STM32CubeU5":  "config_u5.json",
+                                "STM32CubeWB":  "config_wb.json",
+                                "STM32CubeWB0":  "config_wb0.json",
+                                "STM32CubeWBA":  "config_wba.json",
+                                "STM32CubeWL":  "config_wl.json",
+                                "STM32CubeWL3":  "config_wl3.json"
+                            },
+    "kb_datasource_ids":  {
+                              "STM32CubeC0":  {
+                                                  "issues":  29193,
+                                                  "files":  29192,
+                                                  "diagnostic":  29212
+                                              },
+                              "STM32CubeC5":  {
+                                                  "issues":  null,
+                                                  "files":  null,
+                                                  "diagnostic":  null
+                                              },
+                              "STM32CubeF0":  {
+                                                  "issues":  29195,
+                                                  "files":  29196,
+                                                  "diagnostic":  29213
+                                              },
+                              "STM32CubeF1":  {
+                                                  "issues":  29197,
+                                                  "files":  29198,
+                                                  "diagnostic":  29214,
+                                                  "resolver":  29211
+                                              },
+                              "STM32CubeF2":  {
+                                                  "issues":  29199,
+                                                  "files":  29200,
+                                                  "diagnostic":  29215
+                                              },
+                              "STM32CubeF3":  {
+                                                  "issues":  29282,
+                                                  "files":  29283,
+                                                  "diagnostic":  29284
+                                              },
+                              "STM32CubeF4":  {
+                                                  "issues":  28099,
+                                                  "files":  29042,
+                                                  "diagnostic":  28122,
+                                                  "resolver":  28118
+                                              },
+                              "STM32CubeF7":  {
+                                                  "issues":  29276,
+                                                  "files":  29277,
+                                                  "diagnostic":  29278,
+                                                  "resolver":  29279
+                                              },
+                              "STM32CubeG0":  {
+                                                  "issues":  29273,
+                                                  "files":  29274,
+                                                  "diagnostic":  29275
+                                              },
+                              "STM32CubeG4":  {
+                                                  "issues":  29611,
+                                                  "files":  29612,
+                                                  "diagnostic":  29614
+                                              },
+                              "STM32CubeH5":  {
+                                                  "issues":  28158,
+                                                  "files":  29043,
+                                                  "diagnostic":  28165,
+                                                  "resolver":  28164
+                                              },
+                              "STM32CubeH7":  {
+                                                  "issues":  24406,
+                                                  "files":  32619,
+                                                  "diagnostic":  32585,
+                                                  "resolver":  32586
+                                              },
+                              "STM32CubeH7RS":  {
+                                                    "issues":  29270,
+                                                    "files":  29271,
+                                                    "diagnostic":  29272
+                                                },
+                              "STM32CubeL0":  {
+                                                  "issues":  29644,
+                                                  "files":  29645,
+                                                  "diagnostic":  29648,
+                                                  "resolver":  29649
+                                              },
+                              "STM32CubeL1":  {
+                                                  "issues":  29652,
+                                                  "files":  29654,
+                                                  "diagnostic":  29655
+                                              },
+                              "STM32CubeL4":  {
+                                                  "issues":  29659,
+                                                  "files":  29660,
+                                                  "diagnostic":  29708,
+                                                  "resolver":  29709
+                                              },
+                              "STM32CubeL5":  {
+                                                  "issues":  29764,
+                                                  "files":  29765,
+                                                  "diagnostic":  null
+                                              },
+                              "STM32CubeN6":  {
+                                                  "issues":  29772,
+                                                  "files":  29773,
+                                                  "diagnostic":  null
+                                              },
+                              "STM32CubeU0":  {
+                                                  "issues":  29890,
+                                                  "files":  29891,
+                                                  "diagnostic":  null
+                                              },
+                              "STM32CubeU3":  {
+                                                  "issues":  29907,
+                                                  "files":  32687,
+                                                  "diagnostic":  32688
+                                              },
+                              "STM32CubeU5":  {
+                                                  "issues":  28167,
+                                                  "files":  29044,
+                                                  "diagnostic":  28170,
+                                                  "resolver":  28244
+                                              },
+                              "STM32CubeWB":  {
+                                                  "issues":  30946,
+                                                  "files":  30947,
+                                                  "diagnostic":  30948,
+                                                  "resolver":  30949
+                                              },
+                              "STM32CubeWB0":  {
+                                                   "issues":  32581,
+                                                   "files":  32681,
+                                                   "diagnostic":  32682,
+                                                   "resolver":  29936
+                                               },
+                              "STM32CubeWBA":  {
+                                                   "issues":  29939,
+                                                   "files":  29940,
+                                                   "diagnostic":  null
+                                               },
+                              "STM32CubeWL":  {
+                                                  "issues":  28171,
+                                                  "files":  29045,
+                                                  "diagnostic":  28173,
+                                                  "resolver":  28245
+                                              },
+                              "STM32CubeWL3":  {
+                                                   "issues":  29946,
+                                                   "files":  29947,
+                                                   "diagnostic":  null
+                                               }
+                          },
+    "kb_id":  793,
+    "alfred_api":  {
+                       "client_app_name":  "mdrf_stgithub_analyzer_client",
+                       "api_key":  null,
+                       "api_key_env":  "ST_CHATGPT_API_KEY",
+                       "api_url":  "https://api-ai-bridge.st.com/chatgpt/api/client-apps",
+                       "use_proxy":  false
+                   },
+    "upload":  {
+                   "remote_user":  "abir.gharbi@st.com",
+                   "throttle_sec":  5,
+                   "retry_count":  2,
+                   "retry_delay_sec":  30,
+                   "json_split_size":  1000
+               }
+}

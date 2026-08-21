@@ -1,0 +1,416 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{listings}
+\geometry{margin=2.2cm}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+
+\lstdefinestyle{cmd}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  keepspaces=true
+}
+
+\title{Rapport d'equipe\\Ajout d'une nouvelle serie STM32Cube dans le pipeline}
+\author{Projet STM32Cube Preprocessing}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Objet du rapport}
+Ce document formalise la procedure standard d'ajout d'une nouvelle serie STM32Cube
+(exemple: C5) dans le pipeline. Il precise les fichiers a modifier, la signification
+des champs de configuration, la source des donnees a collecter, l'integration dans
+l'automatisation, ainsi que les etapes de validation avant mise en production.
+
+Ce rapport est concu pour etre partage avec le document complementaire
+\emph{Parametres du workflow Manual Auto Update KB et demarrage rapide du runner
+self-hosted} (\texttt{workflow\_dispatch\_inputs\_and\_runner\_quickstart.pdf}), qui
+detaille chaque parametre du workflow de declenchement manuel ainsi que
+l'installation d'un runner self-hosted de test. Les deux documents forment ensemble
+la documentation de reference remise a l'encadrant.
+
+\section{Perimetre technique}
+Le perimetre couvre:
+\begin{itemize}[leftmargin=*]
+  \item la configuration serie,
+  \item l'execution du pipeline (Prepare/Upload),
+  \item le split des issues par composant,
+  \item l'upload vers la KB,
+  \item l'integration dans les workflows GitHub Actions,
+  \item le test sur une autre machine avec self-hosted runner.
+\end{itemize}
+
+\section{Fichiers a modifier}
+\subsection{Configuration}
+\begin{itemize}[leftmargin=*]
+  \item \texttt{shared/config/config\_c5.json} (nouveau fichier)
+  \item \texttt{shared/config/config\_all\_series.json} (mise a jour)
+\end{itemize}
+
+\subsection{Scripts workflow}
+\begin{itemize}[leftmargin=*]
+  \item \texttt{pipeline\_Automation/workflow/Run\_Single\_Series\_Full\_Pipeline\_And\_Upload.ps1}
+  \item \texttt{pipeline\_Automation/workflow/Split\_Issues\_By\_Component.ps1}
+  \item \texttt{pipeline\_Automation/workflow/Upload\_Issues\_By\_Component.ps1}
+  \item \texttt{pipeline\_Automation/workflow/run\_all\_series.py}
+\end{itemize}
+
+\subsection{Workflows CI/CD}
+\begin{itemize}[leftmargin=*]
+  \item \texttt{.github/workflows/auto\_update\_kb.yml}
+  \item \texttt{.github/workflows/manual\_auto\_update\_kb.yml}
+\end{itemize}
+
+\section{Definition des champs de configuration}
+\subsection{Fichier \texttt{config\_<serie>.json}}
+\textbf{owner}\\
+Organisation source des depots (STMicroelectronics).
+
+\textbf{repos}\\
+Liste ordonnee des depots de la serie. Le premier element doit etre le repo parent
+(exemple: STM32CubeC5), suivi des depots lies (HAL/CMSIS/BSP/Middleware).
+
+\textbf{data\_dir}\\
+Dossier des artefacts data intermediaires (valeur standard: \texttt{data}).
+
+\textbf{repos\_dir}\\
+Dossier local des clones (valeur standard: \texttt{GitHub\_repos}).
+
+\textbf{auto\_clone\_missing\_repos}\\
+Activation du clonage automatique des depots manquants.
+
+\textbf{repo\_clone\_urls}\\
+Dictionnaire \texttt{repo -> URL git} pour les depots relies.
+
+\textbf{linked\_repo\_refs}\\
+Dictionnaire \texttt{repo -> SHA} correspondant aux refs des sous-modules pour la
+release cible. Ce champ est essentiel pour la reproductibilite.
+
+\textbf{commit\_pr\_scope}\\
+Strategie de liaison des commits/PR (valeur recommandee: \texttt{linked\_or\_merged}).
+
+\textbf{github\_token\_env}\\
+Nom de variable d'environnement contenant le token GitHub.
+
+\textbf{rate\_limits}\\
+Temporisations API (issues/comments) pour stabiliser les appels.
+
+\textbf{ingest\_version}\\
+Version logique de la configuration d'ingestion.
+
+\subsection{Fichier \texttt{config\_all\_series.json}}
+\textbf{all\_series}\\
+Liste des series actives.
+
+\textbf{series\_config\_files}\\
+Mapping \texttt{Serie -> fichier config}.
+
+\textbf{kb\_datasource\_ids}\\
+IDs des datasources par serie (issues, files, diagnostic, resolver).
+
+\textbf{kb\_id}\\
+Identifiant de la Knowledge Base cible.
+
+\section{Source des informations: repos, urls, refs}
+Les informations sont extraites du repo parent de la serie, positionne sur la
+release cible.
+
+\subsection{Commandes de collecte}
+\label{sec:commandes-collecte}
+\begin{lstlisting}[style=cmd]
+git clone --recursive https://github.com/STMicroelectronics/STM32CubeC5.git
+cd STM32CubeC5
+git checkout <tag_cible>
+git submodule update --init --recursive
+
+# URLs des sous-modules
+git config -f .gitmodules --get-regexp "submodule\..*\.url"
+
+# SHAs de references
+git submodule status --recursive
+
+# Paths des sous-modules
+git config -f .gitmodules --get-regexp "submodule\..*\.path"
+\end{lstlisting}
+
+\subsection{Regles de remplissage}
+\begin{itemize}[leftmargin=*]
+  \item \texttt{repos[0]} = repo parent de la serie.
+  \item \texttt{repo\_clone\_urls} renseigne les depots a cloner.
+  \item \texttt{linked\_repo\_refs} renseigne les SHAs de la release cible.
+  \item Exclure les depots non relies au perimetre de la serie.
+\end{itemize}
+
+\section{Procedure d'integration d'une nouvelle serie}
+\subsection{Etape 1: creation du fichier config serie}
+Creer \texttt{shared/config/config\_c5.json} a partir d'un modele proche
+(\texttt{config\_c0.json} ou \texttt{config\_g4.json}) et renseigner les champs
+\texttt{repos}, \texttt{repo\_clone\_urls}, \texttt{linked\_repo\_refs}.
+
+\subsection{Etape 2: declaration globale}
+Mettre a jour \texttt{shared/config/config\_all\_series.json}:
+\begin{itemize}[leftmargin=*]
+  \item ajout dans \texttt{all\_series},
+  \item mapping dans \texttt{series\_config\_files},
+  \item entree dans \texttt{kb\_datasource\_ids}.
+\end{itemize}
+
+\subsection{Etape 3: mapping scripts}
+Ajouter la serie dans tous les \texttt{ValidateSet} et \texttt{seriesMap}:
+\begin{itemize}[leftmargin=*]
+  \item code serie: \texttt{C5}
+  \item slug serie: \texttt{stm32cubec5}
+  \item repo parent: \texttt{STM32CubeC5}
+  \item config: \texttt{shared/config/config\_c5.json}
+\end{itemize}
+
+\subsection{Etape 4: mapping batch Python}
+Dans \texttt{run\_all\_series.py}, ajouter \texttt{c5} dans \texttt{SERIES\_CONFIGS}.
+
+\subsection{Etape 5: mapping GitHub Actions}
+Ajouter la serie C5 dans:
+\begin{itemize}[leftmargin=*]
+  \item les listes de series autorisees,
+  \item les listes par defaut (si desired),
+  \item les normalisations d'inputs.
+\end{itemize}
+
+\section{Validation fonctionnelle}
+\subsection{Prepare}
+\begin{lstlisting}[style=cmd]
+powershell -ExecutionPolicy Bypass -File .\pipeline_Automation\workflow\Run_Single_Series_Full_Pipeline_And_Upload.ps1 -Series C5 -Mode Prepare
+\end{lstlisting}
+
+\subsection{Split composant}
+\begin{lstlisting}[style=cmd]
+powershell -ExecutionPolicy Bypass -File .\pipeline_Automation\workflow\Split_Issues_By_Component.ps1 -Series C5
+\end{lstlisting}
+
+\subsection{Controle couverture et doublons}
+\begin{lstlisting}[style=cmd]
+python -m pipeline.delivery.validate_issues_by_component_split --summary "datasets/07_delivery/st_ready/by_series/stm32cubec5/issues_json/by_component/summary_by_component_c5.json"
+\end{lstlisting}
+
+\subsection{Upload composant}
+\begin{lstlisting}[style=cmd]
+powershell -ExecutionPolicy Bypass -File .\pipeline_Automation\workflow\Upload_Issues_By_Component.ps1 -Series C5 -DryRun -RemoteUser "<email_st>"
+powershell -ExecutionPolicy Bypass -File .\pipeline_Automation\workflow\Upload_Issues_By_Component.ps1 -Series C5 -RemoteUser "<email_st>"
+\end{lstlisting}
+
+\section{Test sur une autre machine (self-hosted runner)}
+\subsection{Prerequis}
+\begin{itemize}[leftmargin=*]
+  \item Windows 10/11
+  \item Git
+  \item Python 3.12+
+  \item acces reseau GitHub/ST
+\end{itemize}
+
+\subsection{Installation projet}
+\begin{lstlisting}[style=cmd]
+git clone https://github.com/<org-ou-user>/PFE_Chatbot_STM32Cube.git
+cd PFE_Chatbot_STM32Cube
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+\end{lstlisting}
+
+\subsection{Runner et configuration}
+\begin{itemize}[leftmargin=*]
+  \item Declarer un self-hosted runner depuis les settings du repo, en suivant la
+  documentation officielle GitHub: \url{https://docs.github.com/en/actions/how-tos/manage-runners/self-hosted-runners/add-runners}.
+  \item Lancer le runner en service.
+  \item Verifier le label \texttt{self-hosted}.
+  \item Activer \texttt{git core.longpaths=true}.
+  \item Configurer secrets: \texttt{ST\_GITHUB\_ANALYZER\_API\_KEY}, \texttt{ST\_CHATGPT\_API\_KEY},
+  \texttt{ST\_REMOTE\_USER}.
+\end{itemize}
+
+\textbf{Important -- clone du depot vs reconfiguration du runner.} Lorsqu'une nouvelle
+machine clone ce depot, certaines etapes ont deja ete realisees (scripts,
+configuration pipeline, dossier \texttt{actions-runner} present dans l'arborescence
+clonee). En revanche, le runner self-hosted lui-meme n'est \textbf{pas}
+reutilisable tel quel: il doit etre reconfigure sur la nouvelle machine. Pour cela:
+\begin{enumerate}[leftmargin=*]
+  \item Supprimer le contenu du dossier \texttt{actions-runner} (le dossier provient
+  de la machine d'origine et contient une configuration/registration qui lui est
+  propre).
+  \item Reprendre les instructions a partir de l'\textbf{etape 6} du document GitHub
+  officiel cite ci-dessus (telechargement et configuration du runner).
+  \item Executer ces commandes depuis une console \textbf{PowerShell} ou
+  \textbf{CMD} Windows, et non depuis Git Bash (le script de configuration du
+  runner n'est pas garanti de fonctionner correctement sous Git Bash).
+  \item Lors de la (re)configuration (\texttt{config.cmd}), il est recommande de
+  conserver les options par defaut proposees (nom de runner, groupe, labels, dossier
+  de travail), sauf besoin explicite de les modifier.
+\end{enumerate}
+
+\subsection{Test de bout en bout}
+\begin{lstlisting}[style=cmd]
+powershell -ExecutionPolicy Bypass -File .\pipeline_Automation\workflow\Run_Single_Series_Full_Pipeline_And_Upload.ps1 -Series C5 -Mode Full -EnableIssuesByComponentFlow -ComponentIssuesOnly -RemoteUser "<email_st>"
+\end{lstlisting}
+
+\section{Mode migration vers datasources par composant}
+Pour remplacer le datasource global issues par des datasources
+\texttt{issues\_<SERIE>\_<COMPONENT>}:
+\begin{itemize}[leftmargin=*]
+  \item activer \texttt{EnableIssuesByComponentFlow},
+  \item activer \texttt{ComponentIssuesOnly}.
+\end{itemize}
+
+\section{Checklist Go/No-Go}
+\begin{itemize}[leftmargin=*]
+  \item config serie creee et controlee,
+  \item config globale mise a jour,
+  \item mappings scripts a jour,
+  \item mappings workflows a jour,
+  \item phase Prepare validee,
+  \item split composant valide,
+  \item validation anti-doublons OK,
+  \item upload dry-run OK,
+  \item upload reel OK,
+  \item datasource IDs traces dans \texttt{config\_all\_series.json}.
+\end{itemize}
+
+\section{Points d'attention}
+Cette section detaille chacun des quatre risques operationnels identifies pour
+l'ajout d'une nouvelle serie. Pour chaque point: la notion concernee, pourquoi
+c'est un risque, un exemple concret, et comment le detecter/corriger.
+
+\subsection{SHAs incorrects dans \texttt{linked\_repo\_refs}}
+\textbf{Notion.} Le champ \texttt{linked\_repo\_refs} du fichier
+\texttt{config\_<serie>.json} associe chaque sous-depot (HAL, CMSIS, BSP,
+Middleware) au SHA de commit exact correspondant a la release ciblee du depot
+parent. C'est ce SHA, et non une branche mobile, qui garantit que le contenu
+ingere correspond a une version figee et tracable.
+
+\textbf{Pourquoi c'est un risque.} Si un SHA est incorrect (copie depuis la
+mauvaise branche, depot desynchronise, ou oubli de mise a jour apres un
+changement de release), le pipeline ingere un etat du sous-depot qui ne
+correspond pas a la release officielle. Les documents generes referencent alors
+un contenu different de celui reellement publie, ce qui casse la
+\emph{reproductibilite}: deux executions du pipeline a des dates differentes,
+ou par deux personnes differentes, ne produisent plus le meme resultat pour la
+meme release nominale.
+
+\textbf{Exemple concret.} Un SHA laisse sur la branche \texttt{main} au lieu du
+tag \texttt{v1.2.0} de la release: si le sous-depot recoit de nouveaux commits
+apres l'integration, la prochaine execution du pipeline changera silencieusement
+les donnees ingerees, sans que la version de la serie declaree ait change.
+
+\textbf{Detection et correction.} Toujours extraire les SHAs avec
+\texttt{git submodule status --recursive} apres avoir positionne le depot parent
+exactement sur le tag/commit de la release cible (voir section
+\ref{sec:commandes-collecte} sur les commandes de collecte), jamais a la main
+ni depuis une branche en mouvement.
+
+\subsection{Serie declaree en config mais absente des \texttt{ValidateSet}/\texttt{seriesMap}}
+\textbf{Notion.} \texttt{ValidateSet} est une contrainte PowerShell qui restreint
+les valeurs acceptees pour un parametre de script (ex: liste figee de codes
+serie). \texttt{seriesMap} est la table interne (PowerShell ou Python) qui relie
+un code serie (ex: \texttt{C5}) a son fichier de configuration, son slug et son
+depot parent.
+
+\textbf{Pourquoi c'est un risque.} Declarer une serie uniquement dans
+\texttt{config\_all\_series.json} ne suffit pas si un script utilise encore une
+liste \texttt{ValidateSet} ou une table \texttt{seriesMap} codee en dur: le
+script refuse la serie ou echoue en lui cherchant un fichier de configuration
+inexistant, meme si la configuration JSON globale est correcte.
+
+\textbf{Etat verifie pour la serie C5 (mise a jour de ce rapport).} Une
+verification du code a ete effectuee. Les scripts principaux
+\texttt{Run\_Single\_Series\_Full\_Pipeline\_And\_Upload.ps1},
+\texttt{Split\_Issues\_By\_Component.ps1}, \texttt{Upload\_Issues\_By\_Component.ps1}
+et \texttt{Upload\_Series\_All\_Categories.ps1} construisent leur
+\texttt{seriesMap} \emph{dynamiquement} a partir de
+\texttt{shared/config/config\_all\_series.json}: comme \texttt{STM32CubeC5} et
+\texttt{config\_c5.json} y sont bien enregistres, \textbf{ce risque est corrige
+pour ces quatre scripts et la serie C5 est utilisable directement}.
+
+Toutefois, deux scripts auxiliaires plus anciens utilisent encore des tables
+\emph{statiques} qui n'incluent pas C5 et devront etre mis a jour manuellement
+avant utilisation avec cette serie:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{pipeline\_Automation/workflow/run\_all\_series.py} (dictionnaire
+  \texttt{SERIES\_CONFIGS} code en dur, C5 absent),
+  \item \texttt{pipeline\_Automation/workflow/reexport\_delivery.py} (meme
+  dictionnaire \texttt{SERIES\_CONFIGS} statique, C5 absent),
+  \item \texttt{pipeline\_Automation/workflow/Upload\_Multi\_Series\_All\_Categories.ps1}
+  (liste \texttt{ValidateSet} figee, C5 absent).
+\end{itemize}
+Ces trois scripts restent \textbf{a risque} tant qu'ils ne sont pas mis a jour:
+leur usage avec \texttt{-Series C5} (ou \texttt{--series c5}) echouera avec une
+erreur de type \og config introuvable \fg{} ou \og valeur non autorisee \fg{}.
+
+\textbf{Detection et correction.} Avant d'utiliser un script pour une serie
+nouvellement ajoutee, verifier s'il lit \texttt{config\_all\_series.json}
+dynamiquement (pas de risque) ou s'il possede une liste/dictionnaire de series
+code en dur (risque residuel, necessite un ajout manuel de la serie dans ce
+fichier).
+
+\subsection{Serie absente des workflows}
+\textbf{Notion.} Les workflows GitHub Actions
+(\texttt{.github/workflows/auto\_update\_kb.yml} et
+\texttt{.github/workflows/manual\_auto\_update\_kb.yml}) exposent les series
+disponibles via leurs parametres \texttt{workflow\_dispatch} (voir le document
+complementaire sur les parametres du workflow). Meme si une serie est
+correctement configuree cote pipeline, elle doit aussi etre acceptee par la
+logique de normalisation des inputs du workflow.
+
+\textbf{Pourquoi c'est un risque.} Si la serie n'est pas prise en compte dans
+cette normalisation (ou dans une liste par defaut du workflow), il devient
+impossible de la declencher depuis l'interface \emph{Actions} de GitHub, meme en
+executant le script localement avec succes: le workflow rejettera l'entree ou
+ne l'inclura pas dans la matrice de jobs.
+
+\textbf{Etat verifie pour C5.} Les workflows lisent egalement
+\texttt{config\_all\_series.json} pour deriver la liste des series autorisees
+(meme mecanisme que \texttt{seriesMap}), donc C5 y est normalement deja
+acceptee. Il reste toutefois recommande de faire un essai de declenchement
+manuel avec \texttt{series=C5} et \texttt{mode=Prepare} pour confirmer avant un
+usage en production.
+
+\textbf{Detection et correction.} Lancer le workflow \emph{Manual Auto Update KB}
+avec la nouvelle serie en mode \texttt{Prepare} et verifier que le job
+correspondant apparait dans la matrice, avant de tenter un mode \texttt{Full}.
+
+\subsection{Upload composant sans split prealable}
+\textbf{Notion.} Le \og split par composant \fg{} (script
+\texttt{Split\_Issues\_By\_Component.ps1}) decoupe le datasource \og issues \fg{}
+monolithique d'une serie en plusieurs datasources plus petits, un par composant
+logiciel (HAL, BSP, Middleware, etc.), et genere en meme temps un fichier
+\texttt{summary\_by\_component\_<serie>.json} qui recapitule la repartition et
+sert de reference pour le controle anti-doublons.
+
+\textbf{Pourquoi c'est un risque.} Le script
+\texttt{Upload\_Issues\_By\_Component.ps1} attend en entree ce fichier
+\texttt{summary\_by\_component} pour savoir quels composants uploader et avec
+quels identifiants de datasource. Si l'upload par composant est lance sans avoir
+prealablement execute le split, ce fichier de synthese est absent et l'upload ne
+peut pas determiner la liste des composants a traiter: il echoue immediatement
+ou traite une liste vide.
+
+\textbf{Exemple concret.} Executer directement
+\texttt{Upload\_Issues\_By\_Component.ps1 -Series C5} sans avoir lance au
+prealable \texttt{Split\_Issues\_By\_Component.ps1 -Series C5} produit une erreur
+de fichier manquant plutot qu'un upload partiel silencieux.
+
+\textbf{Detection et correction.} Toujours respecter l'ordre: (1) export
+delivery standard, (2) \texttt{Split\_Issues\_By\_Component.ps1}, (3) controle du
+resume via \texttt{validate\_issues\_by\_component\_split}, (4) uniquement
+ensuite \texttt{Upload\_Issues\_By\_Component.ps1}. Cet ordre est deja formalise
+dans la section \og Validation fonctionnelle \fg{} de ce document.
+
+\end{document}

@@ -1,0 +1,4 @@
+query_id,query_text,query_type,expected_repo_or_card,expected_keywords,keywords_mode,forbidden_regex,notes
+Q01,STM32CubeL5 I2C BUSY issue workaround,error_message,stm32l5xx-hal-driver,"I2C|BUSY|workaround",any,,
+Q02,How to fix USB VBUS sensing issue on STM32H7?,how_to,STM32CubeH7,"VBUS|USB|H7",any,,
+Q03,FLASH_SIZE_DATA_REGISTER undeclared on STM32L4,api_symbol,stm32l4xx-hal-driver,"FLASH_SIZE_DATA_REGISTER|undeclared",any,,

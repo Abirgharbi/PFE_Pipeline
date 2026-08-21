@@ -1,0 +1,206 @@
+<mxfile host="app.diagrams.net" modified="2025-01-01T00:00:00.000Z" agent="draw.io" version="24.0.0">
+  <diagram name="Full Pipeline - 23 Steps" id="pipeline-full">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Full Pipeline — 23 Steps from GitHub to Knowledge Base" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#03234B;" vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="900" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PHASE 1: INGESTION (Steps 1-6) ═══ -->
+        <mxCell id="phase1-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1A238E;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="20" y="60" width="330" height="440" as="geometry" />
+        </mxCell>
+        <mxCell id="phase1-title" value="PHASE 1: INGESTION (Steps 1-6)" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#1A238E;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="290" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="Step 1: fetch_issues.py&lt;br&gt;→ raw_issues_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="105" width="290" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="Step 2: fetch_prs.py&lt;br&gt;→ raw_prs_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="160" width="290" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="Step 3: fetch_commits.py&lt;br&gt;→ raw_commits_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="215" width="290" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="Step 4: fetch_issue_pr_commit_links.py&lt;br&gt;→ links_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="270" width="290" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" value="Step 5: repo_sync_service.py&lt;br&gt;→ GitHub_repos/&lt;repo&gt;/ (local clone)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="325" width="290" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="Step 6: fetch_files.py (file_collect_service)&lt;br&gt;→ raw_files_&lt;repo&gt;.json (README, RN, PDFs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="40" y="380" width="290" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Input indicators -->
+        <mxCell id="input-github" value="GitHub API&lt;br&gt;(token required)" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#FF6F00;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="60" y="440" width="130" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="input-clone" value="Local repos&lt;br&gt;(auto-clone)" style="shape=parallelogram;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#FF6F00;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="200" y="440" width="130" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PHASE 2: ALFRED PDF (Step 7) ═══ -->
+        <mxCell id="phase2-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#F44336;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="370" y="60" width="330" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="phase2-title" value="PHASE 2: ALFRED PDF (Step 7)" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#F44336;" vertex="1" parent="1">
+          <mxGeometry x="390" y="70" width="290" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s7a" value="Step 7a: render_pdf_pages() — PyMuPDF&lt;br&gt;→ data/pdf_pages/&lt;repo&gt;/*.png" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="105" width="290" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s7b" value="Step 7b: detect + crop_figures — OpenCV&lt;br&gt;→ data/pdf_figures/&lt;repo&gt;/*.png" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="155" width="290" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s7c" value="Step 7c: ALFRED Vision API → descriptions&lt;br&gt;→ data/pdf_image_descriptions.json (242 figs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="200" width="290" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PHASE 3: CLEANING (Steps 8-9) ═══ -->
+        <mxCell id="phase3-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#4CAF50;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="370" y="240" width="330" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="phase3-title" value="PHASE 3: CLEANING (Steps 8-9)" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#4CAF50;" vertex="1" parent="1">
+          <mxGeometry x="390" y="250" width="290" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s8" value="Step 8: clean_issues.py&lt;br&gt;Normalize text, extract images, structure fields&lt;br&gt;→ clean_issues_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="280" width="290" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s9" value="Step 9: clean_files.py&lt;br&gt;Normalize content, detect file types&lt;br&gt;→ clean_files_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="335" width="290" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PHASE 4: ENRICHMENT (Steps 10-12) ═══ -->
+        <mxCell id="phase4-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE7F6;strokeColor=#9C27B0;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="370" y="400" width="330" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="phase4-title" value="PHASE 4: ENRICHMENT + SIMILARITY (10-12)" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#9C27B0;" vertex="1" parent="1">
+          <mxGeometry x="390" y="410" width="290" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s10" value="Step 10: issues_to_docs_v2.py&lt;br&gt;Classify layer/board/component/severity/is_valid&lt;br&gt;→ docs_issues_&lt;repo&gt;_v2.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="445" width="290" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s11" value="Step 11: files_to_docs_v2.py&lt;br&gt;Tag file_type, inject PDF descriptions&lt;br&gt;→ docs_files_&lt;repo&gt;_v2.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="500" width="290" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s12" value="Step 12: compute_issue_similarity_v2.py&lt;br&gt;TF-IDF cosine → related_issue_ids&lt;br&gt;→ docs_issues_&lt;repo&gt;_v2_sim.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="555" width="290" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PHASE 5: EVALUATION (Steps 13-17) ═══ -->
+        <mxCell id="phase5-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#FF6F00;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="370" y="620" width="330" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="phase5-title" value="PHASE 5: EVALUATION (Steps 13-17)" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#FF6F00;" vertex="1" parent="1">
+          <mxGeometry x="390" y="630" width="290" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s13" value="Step 13: docs_to_chunks_issues_v2.py → chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="665" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s14" value="Step 14: docs_to_chunks_files_v2.py → chunks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="705" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s15" value="Step 15: test_stats_issues_v2 — distribution analysis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="745" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s16" value="Step 16: test_stats_files_v2 — file coverage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="780" width="290" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s17" value="Step 17: validate_schemas — JSON contract gate ✓/✗" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="390" y="815" width="290" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PHASE 6: DELIVERY (Steps 18-23) ═══ -->
+        <mxCell id="phase6-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#388E3C;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="720" y="240" width="340" height="410" as="geometry" />
+        </mxCell>
+        <mxCell id="phase6-title" value="PHASE 6: DELIVERY + ALFRED IMAGES (18-23)" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#388E3C;" vertex="1" parent="1">
+          <mxGeometry x="740" y="250" width="300" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s18" value="Step 18: export_st_ready_issues&lt;br&gt;→ st_ready_issues_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#388E3C;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="740" y="285" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s19" value="Step 19: export_st_ready_files&lt;br&gt;→ st_ready_files_&lt;repo&gt;_v3.json (with PDF figures)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#388E3C;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="740" y="335" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s20" value="Step 20: export_st_ready_resolver_cases&lt;br&gt;→ st_ready_resolver_cases_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#388E3C;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="740" y="385" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s21" value="Step 21: export_st_ready_diagnostic_cards&lt;br&gt;→ st_ready_diagnostic_cards_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#388E3C;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="740" y="435" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s22" value="Step 22: export_issues_with_images&lt;br&gt;→ st_ready_issues_with_images_&lt;repo&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF6F00;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="740" y="485" width="300" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="s23" value="Step 23: ALFRED Vision on issue images&lt;br&gt;[IMAGE ATTACHED] → [IMAGE DESCRIPTION] (in-place)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="740" y="535" width="300" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Output -->
+        <mxCell id="output" value="&lt;b&gt;OUTPUT: datasets/07_delivery/st_ready/by_series/&lt;/b&gt;&lt;br&gt;4 artifact types × N series + drivers/" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#03234B;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="740" y="600" width="300" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ PHASE 7: UPLOAD ═══ -->
+        <mxCell id="phase7-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="720" y="670" width="340" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="phase7-title" value="PHASE 7: UPLOAD TO KB #793" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#455A64;" vertex="1" parent="1">
+          <mxGeometry x="740" y="680" width="300" height="25" as="geometry" />
+        </mxCell>
+
+        <mxCell id="up1" value="Add_Data_Source_Files.py --operation add&lt;br&gt;--json-split-size 1000 --processor JSON" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455A64;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="740" y="715" width="300" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="up2" value="Upload_All_Drivers.ps1&lt;br&gt;throttle=5s, retry=2×30s" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#455A64;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="740" y="760" width="300" height="35" as="geometry" />
+        </mxCell>
+
+        <mxCell id="kb-final" value="KB #793 → ST ChatGPT → End User" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#03234B;fontColor=#FFFFFF;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="740" y="810" width="300" height="35" as="geometry" />
+        </mxCell>
+
+        <!-- Flags box -->
+        <mxCell id="flags-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FAFAFA;strokeColor=#999999;" vertex="1" parent="1">
+          <mxGeometry x="20" y="520" width="330" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="flags-title" value="&lt;b&gt;Pipeline Control Flags&lt;/b&gt;" style="text;html=1;align=center;fontSize=12;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="40" y="530" width="290" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="flag1" value="--export-st-ready → activates steps 18-23" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="35" y="560" width="300" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="flag2" value="--continue-on-error → skip failed sub-repos" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="35" y="585" width="300" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="flag3" value="--skip-ingestion → reuse existing raw_*.json" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="35" y="610" width="300" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="flag4" value="--skip-chunking → skip local chunking (13-14)" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="35" y="635" width="300" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="flag5" value="--no-enrich-pdf → skip ALFRED PDF (step 7)" style="text;html=1;align=left;fontSize=9;fontColor=#333333;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="35" y="660" width="300" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="cmd" value="&lt;b&gt;One command:&lt;/b&gt;&lt;br&gt;python -m pipeline.run_full_workflow \&lt;br&gt;  --export-st-ready --continue-on-error" style="text;html=1;align=left;fontSize=9;fontColor=#03234B;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="35" y="700" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cmd2" value="&lt;b&gt;Workflow script:&lt;/b&gt;&lt;br&gt;Run_Single_Series_Full_Pipeline_And_Upload.ps1&lt;br&gt;  -Series H7 -PlaceholderPolicy Fail" style="text;html=1;align=left;fontSize=9;fontColor=#03234B;fontFamily=Consolas;" vertex="1" parent="1">
+          <mxGeometry x="35" y="760" width="310" height="50" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

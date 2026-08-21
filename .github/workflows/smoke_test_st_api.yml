@@ -1,0 +1,178 @@
+name: Smoke Test ST API Access
+
+on:
+  workflow_dispatch:
+    inputs:
+      endpoint:
+        description: ST API endpoint
+        required: false
+        default: https://api-ai-bridge.st.com/chatgpt/api/client-apps
+      client_app_name:
+        description: ST client app name
+        required: false
+        default: mdrf_stgithub_analyzer_client
+  push:
+    branches:
+      - PFE_Chatbot_STM32Cube_V2
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    name: Probe ST API from GitHub Cloud
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ENDPOINT: ${{ inputs.endpoint || 'https://api-ai-bridge.st.com/chatgpt/api/client-apps' }}
+      CLIENT_APP_NAME: ${{ inputs.client_app_name || 'mdrf_stgithub_analyzer_client' }}
+      API_KEY: ${{ secrets.ST_CHATGPT_API_KEY }}
+    steps:
+      - name: Preconditions
+        shell: bash
+        run: |
+          if [ -z "$API_KEY" ]; then
+            echo "Missing secret ST_CHATGPT_API_KEY" >&2
+            exit 1
+          fi
+
+      - name: Install probe dependencies
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests urllib3
+
+      - name: DNS + TLS reachability
+        shell: bash
+        run: |
+          set -uo pipefail
+          host=$(python -c "from urllib.parse import urlparse; import os; print(urlparse(os.environ['ENDPOINT']).netloc)")
+
+          echo "Probing host: $host"
+
+          if ! getent ahosts "$host" > /tmp/st_dns_probe.txt 2>/tmp/st_dns_probe.err; then
+            echo "::error::DNS resolution failed for $host from GitHub-hosted runner."
+            if command -v nslookup >/dev/null 2>&1; then
+              echo "---- nslookup debug ----"
+              nslookup "$host" || true
+            fi
+            echo "---- getent stderr ----"
+            cat /tmp/st_dns_probe.err || true
+            exit 2
+          fi
+
+          echo "DNS resolution OK (first line):"
+          head -n 1 /tmp/st_dns_probe.txt || true
+
+          http_code=$(curl -k -sS -o /tmp/st_probe_headers.txt -w "%{http_code}" \
+            --connect-timeout 20 \
+            --max-time 40 \
+            -I "$ENDPOINT")
+          curl_exit=$?
+
+          echo "curl exit code: $curl_exit"
+          echo "HTTP code from HEAD probe: $http_code"
+          if [ "$curl_exit" -ne 0 ] || [ "$http_code" = "000" ]; then
+            echo "::error::Network/TLS reachability failed from GitHub-hosted runner."
+            echo "---- curl headers/output ----"
+            cat /tmp/st_probe_headers.txt || true
+            exit 2
+          fi
+
+      - name: Authenticated API probe
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          import random
+          import sys
+          import time
+
+          import requests
+          import urllib3
+
+          urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+          endpoint = os.environ["ENDPOINT"]
+          client_app_name = os.environ["CLIENT_APP_NAME"]
+          api_key = os.environ["API_KEY"]
+          service = "chat"
+
+          timestamp = int(time.time())
+          nonce = random.randint(0, 999999)
+          token_raw = f"{client_app_name}_{service}_{api_key}_{timestamp}_{nonce}"
+          token = hashlib.sha1(token_raw.encode("utf-8")).hexdigest()
+
+          headers = {
+            "Content-Type": "application/json",
+            "stchatgpt-auth-token": token,
+            "stchatgpt-auth-nonce": str(nonce),
+          }
+
+          payload = {
+            "version": 1,
+            "clientAppName": client_app_name,
+            "service": service,
+            "timestamp": timestamp,
+            "temperature": 0.0,
+            "maxResponseTokens": 64,
+            "responseFormat": "text",
+            "persona": "st_copilot",
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {"type": "text", "content": "Connectivity smoke test. Reply with OK."}
+                ],
+              }
+            ],
+          }
+
+          try:
+            response = requests.post(
+              endpoint,
+              json=payload,
+              headers=headers,
+              timeout=60,
+              verify=False,
+            )
+          except requests.RequestException as exc:
+            print(f"::error::Request failed before API response: {exc}")
+            sys.exit(3)
+
+          status = response.status_code
+          body = response.text[:1200]
+
+          print(f"HTTP status: {status}")
+          print("Body preview:")
+          print(body)
+
+          normalized = body.lower()
+          if status in (401, 403) or "unauthorized" in normalized or "forbidden" in normalized:
+            print("::error::Auth rejected. Endpoint reachable, but key/policy is not accepted from GitHub Cloud.")
+            sys.exit(4)
+
+          if status >= 500:
+            print("::error::Server-side/API gateway error; retry required or endpoint policy issue.")
+            sys.exit(5)
+
+          print("API reachability test passed from GitHub-hosted runner.")
+          PY
+
+      - name: Summary
+        if: always()
+        shell: bash
+        run: |
+          echo "## ST API Smoke Test" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Check | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Endpoint | $ENDPOINT |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Client app | $CLIENT_APP_NAME |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Runner | github-hosted (ubuntu-latest) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Interpretation:" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Success => GitHub Cloud can access ST API directly (self-hosted runner not required for this path)." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Auth failure (401/403) => network is reachable, but API key/policy must be fixed for cloud origin." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Network failure => keep self-hosted or use ST bridge webhook." >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,7 @@
+strategy_id,description,search_type,semantic_threshold,semantic_max_doc_count,fulltext_max_doc_count,expected_behavior
+S0_CURRENT,Current platform baseline,Hybrid,0.55,20,12,Reference baseline before parameter tuning
+S1_RECALL,Max recall / ne rien rater,Hybrid,0.45,30,20,More candidates and higher coverage with more noise
+S2_BALANCED,Compromise precision recall,Hybrid,0.55,25,12,Good balance for mixed STM32 technical queries
+S3_PRECISION,Max precision / moins de bruit,Hybrid,0.65,15,8,Fewer docs and more focused results but risk of misses
+S4_SEMANTIC_HEAVY,Semantic focused for natural questions,Hybrid,0.50,30,8,Better semantic matching with reduced keyword influence
+S5_KEYWORD_HEAVY,Keyword focused for exact symbols or errors,Hybrid,0.60,15,20,Better exact token matching for APIs and error strings

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-05T10:00:00.000Z" agent="STM32Cube PFE" version="21.0.0">
+  <diagram id="tech-enrichment" name="Technical - Enrichment &amp; Similarity">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Stages 3-4: Enrichment V2 + Similarity - Technical Detail" style="text;html=1;align=center;fontSize=16;fontStyle=1;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="450" y="10" width="500" height="30" as="geometry" />
+        </mxCell>
+        <!-- Input -->
+        <mxCell id="input_issues" value="clean_issues_{repo}.json&#xa;(from Stage 2)" style="shape=document;whiteSpace=wrap;html=1;size=0.1;fillColor=#eceff1;strokeColor=#546e7a;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="input_files" value="clean_files_{repo}.json&#xa;(from Stage 2)" style="shape=document;whiteSpace=wrap;html=1;size=0.1;fillColor=#eceff1;strokeColor=#546e7a;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="480" width="200" height="60" as="geometry" />
+        </mxCell>
+        <!-- issues_to_docs_v2.py -->
+        <mxCell id="issues_v2" value="issues_to_docs_v2.py" style="swimlane;startSize=25;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="60" width="500" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="heuristics" value="stm32cube_preprocessing_heuristics.py&#xa;&#xa;• detect_mcu_series(title, body) → F4/H5/U5/WL/H7&#xa;• detect_layer(labels, body) → HAL/LL/Middleware/BSP/CubeMX&#xa;• detect_component(title, body, labels) → SPI/I2C/USB/ETH/...&#xa;• detect_board(title, body) → NUCLEO-F446RE / Discovery / ...&#xa;• classify_issue_kind() → bug_report/usage_question/...&#xa;• score_severity() → low/medium/high/critical&#xa;• score_evidence_strength() → low/medium/high&#xa;• extract_keywords() → top technical terms" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#e65100;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="issues_v2">
+          <mxGeometry x="15" y="35" width="470" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="output_doc" value="Output: docs_issues_{repo}_v2.json&#xa;&#xa;Fields added per document:&#xa;• layer, component, board, mcu_series&#xa;• issue_kind, severity, evidence_strength&#xa;• is_valid (quality gate)&#xa;• keywords[], labels[]&#xa;• rescue_applied (fallback enrichment)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#666;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="issues_v2">
+          <mxGeometry x="15" y="210" width="470" height="125" as="geometry" />
+        </mxCell>
+        <!-- Similarity -->
+        <mxCell id="sim_box" value="compute_issue_similarity_v2.py" style="swimlane;startSize=25;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="870" y="60" width="400" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="sim_detail" value="Algorithm:&#xa;&#xa;1. Build TF-IDF matrix from all issue texts&#xa;   (title + body + comments)&#xa;2. Compute pairwise cosine similarity&#xa;3. For each issue, select top-K similar&#xa;   (threshold &gt; 0.3, max 5 related)&#xa;4. Add field: related_issue_ids[]&#xa;&#xa;Output: docs_issues_{repo}_v2_sim.json&#xa;&#xa;Purpose: Cross-link related problems&#xa;for resolver case generation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#7b1fa2;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="sim_box">
+          <mxGeometry x="15" y="35" width="370" height="200" as="geometry" />
+        </mxCell>
+        <!-- files_to_docs_v2.py -->
+        <mxCell id="files_v2" value="files_to_docs_v2.py" style="swimlane;startSize=25;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="450" width="500" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="files_detail" value="Processing:&#xa;&#xa;• Classify file_type: readme/release_notes/source/example/bsp&#xa;• Extract board from path: /Projects/NUCLEO-F446RE/...&#xa;• Detect component from HAL module: stm32f4xx_hal_spi.c → SPI&#xa;• Parse example_name from project structure&#xa;• Generate summary + technical_content fields&#xa;• Quality gate: is_valid based on content length&#xa;&#xa;Output: docs_files_{repo}_v2.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#2e7d32;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="files_v2">
+          <mxGeometry x="15" y="35" width="470" height="150" as="geometry" />
+        </mxCell>
+        <!-- Arrows -->
+        <mxCell id="a1" style="strokeWidth=2;strokeColor=#e65100;" edge="1" source="input_issues" target="issues_v2" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a2" style="strokeWidth=2;strokeColor=#7b1fa2;" edge="1" source="issues_v2" target="sim_box" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a3" style="strokeWidth=2;strokeColor=#2e7d32;" edge="1" source="input_files" target="files_v2" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

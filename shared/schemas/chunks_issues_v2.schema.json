@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shared/schemas/chunks_issues_v2.schema.json",
+  "title": "STM32Cube chunks_issues_v2",
+  "description": "Schema for data/chunks_issues_*_v2.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "text", "metadata"],
+    "properties": {
+      "id": { "type": "string" },
+      "text": { "type": "string" },
+      "metadata": {
+        "type": "object",
+        "required": [
+          "id",
+          "source_kind",
+          "repo",
+          "mcu_package",
+          "type",
+          "issue_number",
+          "issue_title",
+          "state",
+          "labels",
+          "is_confirmed_bug",
+          "ingest_version",
+          "image_urls",
+          "images_count",
+          "is_valid",
+          "layer",
+          "severity",
+          "issue_kind",
+          "chunk_index",
+          "chunk_count"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "source_kind": { "type": "string", "const": "issue" },
+          "repo": { "type": "string" },
+          "mcu_package": { "type": "string" },
+          "mcu_series": { "type": ["string", "null"] },
+          "type": { "type": "string", "const": "issue" },
+          "path": { "type": ["null", "string"] },
+          "github_url": { "type": ["string", "null"] },
+          "board": { "type": ["string", "null"] },
+          "category": { "type": ["string", "null"] },
+          "component": { "type": ["string", "null"] },
+          "example_name": { "type": ["string", "null"] },
+          "issue_number": { "type": "integer" },
+          "issue_title": { "type": "string" },
+          "state": { "type": "string", "enum": ["open", "closed"] },
+          "labels": { "type": "array", "items": { "type": "string" } },
+          "is_confirmed_bug": { "type": "boolean" },
+          "created_at": { "type": ["string", "null"] },
+          "closed_at": { "type": ["string", "null"] },
+          "ingest_version": { "type": "string" },
+          "image_urls": { "type": "array", "items": { "type": "string" } },
+          "images_count": { "type": "integer", "minimum": 0 },
+          "is_valid": { "type": "boolean" },
+          "layer": {
+            "type": "string",
+            "enum": ["HAL", "LL", "Middleware", "CubeMX", "Other"]
+          },
+          "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+          "issue_kind": {
+            "type": "string",
+            "enum": ["bug_report", "usage_question", "configuration_help", "other"]
+          },
+          "related_issue_ids": { "type": "array", "items": { "type": "string" } },
+          "chunk_index": { "type": "integer", "minimum": 0 },
+          "chunk_count": { "type": "integer", "minimum": 1 }
+        },
+        "additionalProperties": true
+      }
+    },
+    "additionalProperties": false
+  }
+}

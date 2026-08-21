@@ -1,0 +1,482 @@
+[
+  {
+    "question": "My STM32H743 project crashes with a hard fault when I enable DMA for SPI. SPI works in polling mode. What could be wrong?",
+    "category": "Issue-specific",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 5,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 0,
+      "no_answer": true
+    }
+  },
+  {
+    "question": "I migrated my STM32H747I-DISCO Ethernet project from CubeH7 v1.9 to v1.11 and now LwIP doesn't get an IP address. PHY link is up but no DHCP. Any idea?",
+    "category": "Migration/Version",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 1,
+      "total": 6,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 2,
+      "hal": 0,
+      "act": 2,
+      "ver": 2,
+      "work": 0,
+      "src": 1,
+      "total": 7,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "USB CDC on STM32H750B-DK works for 30s then PC says 'USB device not recognized'. Same code works on F4.",
+    "category": "Issue-specific",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 4,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 2,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 1,
+      "total": 7,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "HAL_UART_Receive_IT on STM32F446RE only gives me the first character then stops. I have to call it again in the callback. Is this expected?",
+    "category": "HAL Behavior",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 3,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 2,
+      "hal": 1,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 1,
+      "total": 4,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "After a slave sends NACK, my I2C1 on STM32F401 gets permanently stuck with BUSY flag. Only chip reset clears it. How to recover?",
+    "category": "Issue-specific",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 3,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 2,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "After enabling TrustZone on STM32H573I-Discovery, I can't toggle LEDs from non-secure code. GPIO init returns HAL_OK but nothing happens.",
+    "category": "Security/TrustZone",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 5,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 1,
+      "total": 6,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "SPI DMA transfers on STM32H563 randomly return corrupted data (1 in 50 transfers). Same code on F4 is rock solid.",
+    "category": "Issue-specific",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 4,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 0,
+      "no_answer": true
+    }
+  },
+  {
+    "question": "My STM32WL Nucleo sends LoRa join requests but never gets join accept. Gateway sees the request. DevEUI/AppKey confirmed. What blocks the join?",
+    "category": "LoRaWAN",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 4,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 2,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 1,
+      "total": 7,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "STM32WL55 outputs only +10dBm even though I configured +22dBm with HP PA. Radio config matches datasheet. What am I missing?",
+    "category": "RF/Radio",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 2,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 2,
+      "hal": 0,
+      "act": 2,
+      "ver": 2,
+      "work": 0,
+      "src": 1,
+      "total": 7,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "FreeRTOS crashes when I read SD card via SDMMC1 on STM32H7B3I-DK. Works in bare metal. Stack overflow detection doesn't trigger.",
+    "category": "RTOS Integration",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 5,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 0,
+      "no_answer": true
+    }
+  },
+  {
+    "question": "What is the difference between HAL and LL drivers in STM32Cube packages?",
+    "category": "General Knowledge",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 0,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 3,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 2,
+      "work": 2,
+      "src": 1,
+      "total": 7,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "How does the STM32 clock tree work? What are HSI, HSE, PLL?",
+    "category": "General Knowledge",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 2,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 1,
+      "total": 1,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "What BSP examples come with the STM32H573I-Discovery board package? I'm looking for audio and display demos.",
+    "category": "Documentation",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 2,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 0,
+      "no_answer": true
+    }
+  },
+  {
+    "question": "What sensors and connectivity are available on the B-U585I-IOT02A board?",
+    "category": "Documentation",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 2,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 2,
+      "work": 0,
+      "src": 1,
+      "total": 3,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "What breaking changes should I know when updating from STM32CubeF4 v1.26 to v1.28? My project uses USB, Ethernet, and FreeRTOS.",
+    "category": "Release Notes",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 2,
+      "work": 2,
+      "src": 1,
+      "total": 7,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 1,
+      "act": 0,
+      "ver": 2,
+      "work": 0,
+      "src": 1,
+      "total": 4,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "ADC with DMA in scan mode on STM32F429 gives the same value in all buffer positions. 4 channels configured but buffer fills with channel 0 data repeated.",
+    "category": "Issue-specific",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 5,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 0,
+      "no_answer": true
+    }
+  },
+  {
+    "question": "I set up LPDMA to transfer ADC results to SRAM4 in STOP2 mode on STM32U585 but the transfer never starts. Works in Run mode.",
+    "category": "Low Power",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 4,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 0,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 0,
+      "no_answer": true
+    }
+  },
+  {
+    "question": "FDCAN on STM32H753 receives frames fine but some messages with specific IDs are dropped even though my filter should accept them.",
+    "category": "Issue-specific",
+    "alfred": {
+      "cite": 0,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 5,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 2,
+      "hal": 1,
+      "act": 2,
+      "ver": 0,
+      "work": 0,
+      "src": 1,
+      "total": 6,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "I need continuous ADC with DMA on STM32H5 using GPDMA. Examples show linked-list mode. Is there a simpler way or is linked-list mandatory?",
+    "category": "Architecture",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 0,
+      "src": 0,
+      "total": 2,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 0,
+      "hal": 1,
+      "act": 0,
+      "ver": 0,
+      "work": 0,
+      "src": 1,
+      "total": 2,
+      "no_answer": false
+    }
+  },
+  {
+    "question": "My STM32H743 ADC readings jump by 200 LSBs even with stable DC input. Averaging doesn't help. What am I doing wrong?",
+    "category": "Issue-specific",
+    "alfred": {
+      "cite": 0,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 0,
+      "total": 4,
+      "no_answer": false
+    },
+    "persona": {
+      "cite": 2,
+      "hal": 0,
+      "act": 2,
+      "ver": 0,
+      "work": 2,
+      "src": 1,
+      "total": 7,
+      "no_answer": false
+    }
+  }
+]

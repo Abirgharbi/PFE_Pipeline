@@ -1,0 +1,1 @@
+{"query_id": "Q001", "query_text": "Q01. DMA transfer on STM32F4 corrupts data when source and destination are in same SRAM bank", "query_type": "how_to", "expected_repo_or_card": "", "tags": "", "latency_seconds": 60.40479670000059, "results": [], "response_json": {"error": "Request Timeout"}, "error": "Request Timeout"}

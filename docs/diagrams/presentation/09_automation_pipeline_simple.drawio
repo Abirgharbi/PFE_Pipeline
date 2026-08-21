@@ -1,0 +1,78 @@
+<mxfile host="app.diagrams.net" modified="2026-07-20T00:00:00.000Z" agent="copilot" version="24.0.0">
+  <diagram id="automation-simple" name="Automation Pipeline Simple">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="&lt;b&gt;STM32Cube Automation Pipeline - Simple View&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;strokeColor=none;fillColor=none;fontSize=20;fontColor=#03234B;" vertex="1" parent="1">
+          <mxGeometry x="360" y="20" width="900" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="trigger" value="&lt;b&gt;TRIGGER&lt;/b&gt;&#xa;Manual or Scheduled&#xa;(Series: G4/L0/L1/L4/L5/N6/U0/U3...)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="180" width="220" height="120" as="geometry" />
+        </mxCell>
+
+        <mxCell id="prepare" value="&lt;b&gt;1) PREPARE&lt;/b&gt;&#xa;&#xa;Run_Single_Series_Full_Pipeline_And_Upload.ps1&#xa;-Mode Prepare&#xa;&#xa;Does:&#xa;- Sync repos + submodules&#xa;- Ingest/Clean/Enrich/Similarity&#xa;- Export ST-ready JSON&#xa;- Alfred image enrichment&#xa;- PDF patching" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="340" y="120" width="300" height="240" as="geometry" />
+        </mxCell>
+
+        <mxCell id="validate" value="&lt;b&gt;2) VALIDATE&lt;/b&gt;&#xa;&#xa;Quality gates:&#xa;- validate_schemas.py&#xa;- Placeholder check&#xa;  (no IMAGE DESCRIPTION UNAVAILABLE)&#xa;- summary_*.json counts coherent&#xa;&#xa;If fail: stop and fix&#xa;If pass: continue upload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="700" y="120" width="300" height="240" as="geometry" />
+        </mxCell>
+
+        <mxCell id="upload" value="&lt;b&gt;3) UPLOAD&lt;/b&gt;&#xa;&#xa;-Mode Upload&#xa;&#xa;Add_Data_Source_Files.py&#xa;- operation new (create DS)&#xa;or operation add (existing DS)&#xa;- json-split-size 1000&#xa;- Upload parent + drivers/subrepos&#xa;&#xa;Output: upload_datasource_ids_&lt;serie&gt;.json" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="120" width="300" height="240" as="geometry" />
+        </mxCell>
+
+        <mxCell id="kb" value="&lt;b&gt;KB #793&lt;/b&gt;&#xa;ST GitHub Analyzer&#xa;&#xa;Datasources per series:&#xa;- Issues&#xa;- Files&#xa;- Resolver Cases&#xa;- Diagnostic Cards" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="430" width="220" height="170" as="geometry" />
+        </mxCell>
+
+        <mxCell id="persona" value="&lt;b&gt;Persona&lt;/b&gt;&#xa;ST GitHub Analyzer&#xa;&#xa;KB-first retrieval&#xa;Alfred as fallback" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="650" width="220" height="130" as="geometry" />
+        </mxCell>
+
+        <mxCell id="artifact" value="&lt;b&gt;Main Artifacts&lt;/b&gt;&#xa;datasets/07_delivery/st_ready/by_series/&lt;serie&gt;/&#xa;- issues_json&#xa;- files_json&#xa;- resolver_cases_json&#xa;- diagnostic_cards_json&#xa;- drivers/*" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="340" y="430" width="420" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="config" value="&lt;b&gt;Config Sync&lt;/b&gt;&#xa;shared/config/config_all_series.json&#xa;updated with datasource IDs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=11;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="800" y="470" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="trigger" target="prepare">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#82b366;" edge="1" parent="1" source="prepare" target="validate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#d6b656;" edge="1" parent="1" source="validate" target="upload">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a4" value="publish" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#9673a6;" edge="1" parent="1" source="upload" target="kb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a5" value="serves" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#6c8ebf;" edge="1" parent="1" source="kb" target="persona">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a6" value="generated" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;strokeColor=#2e7d32;dashed=1;" edge="1" parent="1" source="prepare" target="artifact">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a7" value="save IDs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=1;strokeColor=#f9a825;dashed=1;" edge="1" parent="1" source="upload" target="config">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="note" value="&lt;i&gt;Tip: For demo, run Prepare first, verify outputs, then run Upload.&lt;/i&gt;" style="text;html=1;align=left;verticalAlign=middle;strokeColor=none;fillColor=none;fontSize=12;fontColor=#444444;" vertex="1" parent="1">
+          <mxGeometry x="60" y="820" width="760" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

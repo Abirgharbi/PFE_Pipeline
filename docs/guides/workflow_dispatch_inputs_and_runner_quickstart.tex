@@ -1,0 +1,223 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{seqsplit}
+\geometry{margin=2.2cm}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+
+\lstdefinestyle{cmd}{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  keepspaces=true
+}
+
+\title{Guide operatoire\\Parametres du workflow \emph{Manual Auto Update KB}\\et demarrage rapide du runner self-hosted}
+\author{Projet STM32Cube Preprocessing}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Objet du document}
+Ce document a deux objectifs:
+\begin{itemize}[leftmargin=*]
+  \item expliquer, champ par champ, les parametres du workflow GitHub Actions
+  \texttt{Manual Auto Update KB} (\texttt{.github/workflows/manual\_auto\_update\_kb.yml}),
+  declenchable manuellement depuis l'onglet Actions;
+  \item fournir un guide rapide pour installer et configurer une machine de test
+  equipee d'un runner self-hosted, prete a executer ce workflow.
+\end{itemize}
+
+\section{Parametres du workflow \emph{Manual Auto Update KB}}
+Le workflow est declenche via \texttt{workflow\_dispatch} et propose les
+parametres suivants dans l'interface GitHub Actions.
+
+\renewcommand{\arraystretch}{1.35}
+\begin{longtable}{|p{4.4cm}|p{2.2cm}|p{8.2cm}|}
+\hline
+\textbf{Champ} & \textbf{Type / Defaut} & \textbf{Explication} \\
+\hline
+\endhead
+\footnotesize\texttt{\seqsplit{series}} & \footnotesize texte, defaut vide &
+\footnotesize Codes de series STM32 separes par des virgules (ex: \texttt{H7,U5,WB}). Les valeurs
+autorisees sont derivees de \texttt{\seqsplit{shared/config/config\_all\_series.json}} (prefixe
+\texttt{STM32Cube} retire, ex: \texttt{STM32CubeH7} devient \texttt{H7}). Une valeur
+vide traite toutes les series. \\
+\hline
+\footnotesize\texttt{mode} & \footnotesize choix, defaut \texttt{Full} &
+\footnotesize Mode d'execution du script par serie. \texttt{Full} = pipeline complet
+(ingestion jusqu'a la livraison et l'upload). \texttt{Prepare} = genere uniquement
+les donnees ST-ready sans upload. \texttt{Upload} = upload seul, en supposant que
+les fichiers sont deja prepares. \\
+\hline
+\footnotesize\texttt{\seqsplit{existing\_datasource\_mode}} & \footnotesize choix, defaut \texttt{Replace} &
+\footnotesize Comportement si le datasource existe deja cote Alfred/KB. \texttt{Replace} = supprime
+et recree (rafraichissement complet). \texttt{Add} = ajoute en complement sans
+toucher a l'existant. \\
+\hline
+\footnotesize\texttt{\seqsplit{skip\_drivers}} & \footnotesize booleen, defaut \texttt{false} &
+\footnotesize Si vrai, saute l'upload des drivers et sous-depots, pour ne traiter que les
+issues/fichiers/resolveurs. \\
+\hline
+\footnotesize\texttt{\seqsplit{skip\_schema\_validation}} & \footnotesize booleen, defaut \texttt{false} &
+\footnotesize Si vrai, desactive le garde-fou \texttt{validate\_schemas.py} avant l'upload.
+Reserve au depannage, jamais en production. \\
+\hline
+\footnotesize\texttt{\seqsplit{continue\_on\_workflow\_error}} & \footnotesize booleen, defaut \texttt{false} &
+\footnotesize Si vrai, lorsque \texttt{run\_full\_workflow} traite plusieurs depots et qu'un
+depot echoue, l'execution continue avec les depots suivants au lieu de tout
+arreter. \\
+\hline
+\footnotesize\texttt{\seqsplit{placeholder\_policy}} & \footnotesize choix, defaut \texttt{Fail} &
+\footnotesize Politique appliquee si des placeholders Alfred (images/figures non resolues)
+subsistent dans les donnees. \texttt{Fail} bloque le pipeline, \texttt{Warn} journalise
+un avertissement et continue, \texttt{Off} ignore completement le controle. \\
+\hline
+\footnotesize\texttt{\seqsplit{enable\_issues\_by\_component\_flow}} & \footnotesize booleen, defaut \texttt{false} &
+\footnotesize Active la generation de datasources \og issues \fg{} separes par composant, en plus
+ou a la place du datasource monolithique. \\
+\hline
+\footnotesize\texttt{\seqsplit{component\_issues\_only}} & \footnotesize booleen, defaut \texttt{false} &
+\footnotesize Si vrai, ne conserve que les datasources issues par composant et saute la version
+monolithique complete. \\
+\hline
+\footnotesize\texttt{\seqsplit{max\_parallel}} & \footnotesize texte (nombre), defaut \texttt{'1'} &
+\footnotesize Nombre maximal de jobs de series executes en parallele dans la matrice GitHub
+Actions. \\
+\hline
+\footnotesize\texttt{\seqsplit{upload\_execution\_target}} & \footnotesize choix, defaut \texttt{self-hosted} &
+\footnotesize Runner utilise pour l'etape d'upload. \texttt{self-hosted} = runner local (acces
+reseau ST normal). \texttt{github-hosted} = runner cloud GitHub, reserve aux tests
+sans acces reseau interne ST. \\
+\hline
+\end{longtable}
+
+\section{Notions cles utilisees dans ce document}
+Cette section definit les termes techniques employes ci-dessus, afin d'eviter
+toute ambiguite de lecture.
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Datasource (KB)}: unite de contenu enregistree dans la Knowledge
+  Base Alfred (par exemple, les issues d'une serie, ou les fichiers d'un
+  composant). Chaque datasource possede un identifiant numerique unique
+  (\texttt{IssuesDatasourceId}, etc.) trace dans
+  \texttt{shared/config/config\_all\_series.json}.
+  \item \textbf{Alfred}: le service d'IA interne ST utilise pour enrichir le
+  contenu (par exemple decrire des figures/PDF) et pour heberger la Knowledge
+  Base consultee par le chatbot final.
+  \item \textbf{Placeholder Alfred}: marqueur temporaire insere dans un document
+  en attendant qu'Alfred fournisse une description (ex: pour une image ou un
+  schema extrait d'un PDF). Un placeholder \og non resolu \fg{} signifie que la
+  description finale n'a pas encore ete generee ou integree.
+  \item \textbf{Runner GitHub Actions}: machine qui execute les jobs d'un
+  workflow. Un runner \textbf{self-hosted} est une machine geree par l'equipe
+  projet (acces reseau interne ST), alors qu'un runner \textbf{github-hosted}
+  est une machine ephemere fournie par GitHub dans le cloud, sans acces au
+  reseau interne ST.
+  \item \textbf{Job / matrice de jobs}: un \emph{job} est une unite d'execution
+  d'un workflow (ex: traiter une serie). Une \emph{matrice} lance plusieurs jobs
+  en parallele, un par valeur d'une liste (ex: une serie par job). Le parametre
+  \texttt{max\_parallel} limite combien de ces jobs tournent simultanement.
+  \item \textbf{Schema de validation}: fichier de regles (via
+  \texttt{validate\_schemas.py}) qui verifie que chaque JSON de livraison
+  ST-ready respecte la structure attendue (champs obligatoires, types) avant
+  d'etre uploade vers la Knowledge Base.
+\end{itemize}
+
+\section{Guide rapide: installation d'un runner self-hosted}
+Objectif: installer et configurer une machine de test en dix minutes.
+
+\subsection{Prerequis machine}
+\begin{itemize}[leftmargin=*]
+  \item Windows 10/11.
+  \item Git installe.
+  \item Python 3.12 ou superieur installe.
+  \item Machine sans veille (sleep/hibernate desactive).
+  \item Connexion Internet stable.
+\end{itemize}
+
+\subsection{Creation du runner GitHub}
+\begin{enumerate}[leftmargin=*]
+  \item Ouvrir le depot GitHub concerne.
+  \item Aller dans \emph{Settings} \textrightarrow{} \emph{Actions} \textrightarrow{} \emph{Runners} \textrightarrow{} \emph{New self-hosted runner}.
+  \item Choisir \emph{Windows x64}.
+  \item Executer les commandes proposees par GitHub sur la machine cible.
+  \item Installer le runner en tant que service et le demarrer.
+\end{enumerate}
+
+\subsection{Secrets obligatoires du depot}
+Aller dans \emph{Settings} \textrightarrow{} \emph{Secrets and variables} \textrightarrow{} \emph{Actions} (onglet \emph{Secrets}, pas \emph{Variables}), puis ajouter:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{RUNNER\_CHECK\_TOKEN} -- verifie la disponibilite du runner self-hosted (job \texttt{runner-check}).
+  \item \texttt{ST\_GITHUB\_ANALYZER\_API\_KEY} -- cle prioritaire utilisee pour l'upload KB.
+  \item \texttt{ST\_CHATGPT\_API\_KEY} -- cle ST ChatGPT, utilisee par le smoke test et en repli pour l'upload.
+  \item \texttt{ST\_REMOTE\_USER} -- utilisateur distant pour le precheck d'authentification upload (self-hosted).
+\end{itemize}
+Seuls des \textbf{secrets} sont necessaires ici; aucune \emph{variable} de depot n'est utilisee par ces workflows.
+
+\subsection{Preparation de l'environnement Python}
+Depuis la racine du depot:
+\begin{lstlisting}[style=cmd]
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+\end{lstlisting}
+
+\subsection{Configuration Git sous Windows}
+\begin{lstlisting}[style=cmd]
+git config --system core.longpaths true
+\end{lstlisting}
+
+\subsection{Lancement du test superviseur}
+\begin{enumerate}[leftmargin=*]
+  \item Ouvrir l'onglet GitHub Actions.
+  \item Lancer le workflow \emph{Manual Auto Update KB}.
+  \item Choisir le mode \texttt{Full}.
+  \item Choisir une seule serie pour le test.
+\end{enumerate}
+
+\subsection{Resultat attendu}
+Ordre attendu des jobs:
+\begin{enumerate}[leftmargin=*]
+  \item Prepare matrix inputs
+  \item Check self-hosted runner availability
+  \item Preprocess <Serie>
+  \item Upload <Serie>
+\end{enumerate}
+Controles a verifier:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{runner\_ready = true}
+  \item Alfred API key preflight = OK
+  \item Upload termine sans erreur
+\end{itemize}
+
+\subsection{En cas d'echec}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Erreur 403 sur le controle runner}: verifier \texttt{RUNNER\_CHECK\_TOKEN}.
+  \item \textbf{Cle API Alfred manquante}: ajouter \texttt{ST\_CHATGPT\_API\_KEY}
+  (ou \texttt{ST\_AI\_BRIDGE\_API\_KEY} / \texttt{ST\_API\_KEY}).
+  \item \textbf{Perte de communication avec le runner}: redemarrer le service runner,
+  verifier le reseau ainsi que la RAM/CPU disponibles, et consulter les logs dans
+  \texttt{actions-runner/\_diag}.
+\end{itemize}
+
+\section{Document complementaire}
+Ce guide est concu pour etre partage avec le guide
+\emph{Rapport d'equipe -- Ajout d'une nouvelle serie STM32Cube dans le pipeline}
+(\texttt{new\_series\_onboarding\_and\_runner\_setup.pdf}), qui couvre l'integration
+complete d'une nouvelle serie dans le pipeline et dans les workflows CI/CD.
+
+\end{document}

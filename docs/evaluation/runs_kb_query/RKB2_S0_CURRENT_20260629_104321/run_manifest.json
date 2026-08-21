@@ -1,0 +1,19 @@
+{
+  "run_id": "RKB2",
+  "run_date": "2026-06-29",
+  "strategy_id": "S0_CURRENT",
+  "kb_id": 793,
+  "strategy_params": {
+    "search_type": "Hybrid",
+    "semantic_threshold": 0.55,
+    "semantic_max_doc_count": 20,
+    "fulltext_max_doc_count": 12
+  },
+  "questions_file": "docs\\evaluation\\all_series_test_suite_10q_diversified_chatwithalfred.xlsx",
+  "xlsx_sheet": "",
+  "remote_user": "abir.gharbi@st.com",
+  "request_timeout": 60,
+  "max_retries": 1,
+  "delay": 0.0,
+  "use_proxy": false
+}

@@ -1,0 +1,58 @@
+{
+  "owner": "STMicroelectronics",
+  "repos": [
+    "STM32CubeWL",
+    "stm32wlxx-hal-driver",
+    "cmsis_device_wl",
+    "stm32wlxx-nucleo-bsp",
+    "b-wl5m-subg1-bsp",
+    "stm32-bsp-common",
+    "stm32-iis2mdc",
+    "stm32-ilps22qs",
+    "stm32-ism330dhcx",
+    "stm32-mw-fatfs",
+    "stm32-mw-freertos",
+    "stm32-mw-mbedtls",
+    "stm32-mw-subghz-phy",
+    "stm32-mx25l4006",
+    "stm32-stts22h"
+  ],
+  "data_dir": "data",
+  "repos_dir": "GitHub_repos",
+  "auto_clone_missing_repos": true,
+  "repo_clone_urls": {
+    "stm32wlxx-hal-driver": "https://github.com/STMicroelectronics/stm32wlxx_hal_driver.git",
+    "cmsis_device_wl": "https://github.com/STMicroelectronics/cmsis_device_wl.git",
+    "stm32wlxx-nucleo-bsp": "https://github.com/STMicroelectronics/stm32wlxx-nucleo-bsp.git",
+    "b-wl5m-subg1-bsp": "https://github.com/STMicroelectronics/b-wl5m-subg1-bsp.git",
+    "stm32-bsp-common": "https://github.com/STMicroelectronics/stm32-bsp-common.git",
+    "stm32-iis2mdc": "https://github.com/STMicroelectronics/stm32-iis2mdc.git",
+    "stm32-ilps22qs": "https://github.com/STMicroelectronics/stm32-ilps22qs.git",
+    "stm32-ism330dhcx": "https://github.com/STMicroelectronics/stm32-ism330dhcx.git",
+    "stm32-mw-fatfs": "https://github.com/STMicroelectronics/stm32-mw-fatfs.git",
+    "stm32-mw-freertos": "https://github.com/STMicroelectronics/stm32-mw-freertos.git",
+    "stm32-mw-mbedtls": "https://github.com/STMicroelectronics/stm32-mw-mbedtls.git",
+    "stm32-mw-subghz-phy": "https://github.com/STMicroelectronics/stm32-mw-subghz-phy.git",
+    "stm32-mx25l4006": "https://github.com/STMicroelectronics/stm32-mx25l4006.git",
+    "stm32-stts22h": "https://github.com/STMicroelectronics/stm32-stts22h.git"
+  },
+  "linked_repo_refs": {
+    "stm32-bsp-common": "cf3581ba46e88944b604f6961505559b9efdac56",
+    "stm32-iis2mdc": "f1b6d89d0aa1f83fa2c9c2a34161c3900a9c77ad",
+    "stm32-ilps22qs": "0dd3c80ce43f7818e9a3897ec79be70fc7689373",
+    "stm32-ism330dhcx": "ac62accb4fa1f002c9ae4e422f887b1aa3946422",
+    "stm32-mw-fatfs": "fc7f8edc3ac2e263c2f231026053e15d3587b34b",
+    "stm32-mw-freertos": "e41c220a37adbb55b59dca704def6e73d6258b95",
+    "stm32-mw-mbedtls": "b244d2e014b02eafa544ea0e4b9a78f7924c628a",
+    "stm32-mw-subghz-phy": "bab7590f9ed2552e70bb0e28694f8aded5ebcabb",
+    "stm32-mx25l4006": "8d7a14c947598bbadf749017d623a3c11a9de3fa",
+    "stm32-stts22h": "18b79e7b316194f4f7039b0d32c00aeac2907de9"
+  },
+  "commit_pr_scope": "linked_or_merged",
+  "github_token_env": "GITHUB_TOKEN",
+  "rate_limits": {
+    "issues_sleep": 0.2,
+    "comments_sleep": 0.1
+  },
+  "ingest_version": "v1.0"
+}

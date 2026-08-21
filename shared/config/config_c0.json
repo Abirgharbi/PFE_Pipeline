@@ -1,0 +1,59 @@
+{
+  "owner": "STMicroelectronics",
+  "repos": [
+    "STM32CubeC0",
+    "stm32c0xx-hal-driver",
+    "cmsis_device_c0",
+    "stm32c0xx-nucleo-bsp",
+    "nucleo-c031c6-bsp",
+    "stm32-bsp-common",
+    "stm32-mw-cmsis-rtos-tx",
+    "stm32-mw-filex",
+    "stm32-mw-levelx",
+    "stm32-mw-mbedtls",
+    "stm32-mw-openbl",
+    "stm32-mw-threadx",
+    "stm32-mw-usbx",
+    "stm32c0116-dk-bsp",
+    "stm32c0316-dk-bsp"
+  ],
+  "data_dir": "data",
+  "repos_dir": "GitHub_repos",
+  "auto_clone_missing_repos": true,
+  "repo_clone_urls": {
+    "stm32c0xx-hal-driver": "https://github.com/STMicroelectronics/stm32c0xx_hal_driver.git",
+    "cmsis_device_c0": "https://github.com/STMicroelectronics/cmsis_device_c0.git",
+    "stm32c0xx-nucleo-bsp": "https://github.com/STMicroelectronics/stm32c0xx-nucleo-bsp.git",
+    "nucleo-c031c6-bsp": "https://github.com/STMicroelectronics/nucleo-c031c6-bsp.git",
+    "stm32-bsp-common": "https://github.com/STMicroelectronics/stm32-bsp-common.git",
+    "stm32-mw-cmsis-rtos-tx": "https://github.com/STMicroelectronics/stm32-mw-cmsis-rtos-tx.git",
+    "stm32-mw-filex": "https://github.com/STMicroelectronics/stm32-mw-filex.git",
+    "stm32-mw-levelx": "https://github.com/STMicroelectronics/stm32-mw-levelx.git",
+    "stm32-mw-mbedtls": "https://github.com/STMicroelectronics/stm32-mw-mbedtls.git",
+    "stm32-mw-openbl": "https://github.com/STMicroelectronics/stm32-mw-openbl.git",
+    "stm32-mw-threadx": "https://github.com/STMicroelectronics/stm32-mw-threadx.git",
+    "stm32-mw-usbx": "https://github.com/STMicroelectronics/stm32-mw-usbx.git",
+    "stm32c0116-dk-bsp": "https://github.com/STMicroelectronics/stm32c0116-dk-bsp.git",
+    "stm32c0316-dk-bsp": "https://github.com/STMicroelectronics/stm32c0316-dk-bsp.git"
+  },
+  "linked_repo_refs": {
+    "nucleo-c031c6-bsp": "621922ea27c96ae270af31c9ceee49994dee0021",
+    "stm32-bsp-common": "d5cc69f0549505cf576b931cb8e53b36331de667",
+    "stm32-mw-cmsis-rtos-tx": "94b12a12c1d8418d831d6ca7a98fee542c4c635a",
+    "stm32-mw-filex": "ca60341d1707ee83ef36da8a2840af0b54d2706e",
+    "stm32-mw-levelx": "f4b1a569df51fc0728c5b02d511d1552ddde973a",
+    "stm32-mw-mbedtls": "6e9c2d73dfc36ad5f950d3eea995c79e4be4dc89",
+    "stm32-mw-openbl": "ac919531e322d88c06ac0b97d86d266d1f8add6e",
+    "stm32-mw-threadx": "d4178407d7f3b8f3de1aca5e16eb2efeadcb3bb9",
+    "stm32-mw-usbx": "99d6e68d6388c68e6fef6be512af2b9ec13cda94",
+    "stm32c0116-dk-bsp": "67374e3308ecac44a3c45314c85f48e1a40cbcff",
+    "stm32c0316-dk-bsp": "363b19fcdd63ed3c7c150a4c685c189347b28c68"
+  },
+  "commit_pr_scope": "linked_or_merged",
+  "github_token_env": "GITHUB_TOKEN",
+  "rate_limits": {
+    "issues_sleep": 0.2,
+    "comments_sleep": 0.1
+  },
+  "ingest_version": "v1.0"
+}

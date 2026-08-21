@@ -1,0 +1,207 @@
+<mxfile host="app.diagrams.net" modified="2025-01-01T00:00:00.000Z" agent="draw.io" version="24.0.0">
+  <diagram name="ALFRED Integration in Pipeline" id="alfred-integration">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="How ALFRED Integrates with the Overall Pipeline" style="text;html=1;align=center;verticalAlign=middle;fontSize=18;fontStyle=1;fontColor=#03234B;" vertex="1" parent="1">
+          <mxGeometry x="250" y="10" width="900" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ MAIN PIPELINE FLOW (horizontal, center) ═══ -->
+        <!-- Step boxes -->
+        <mxCell id="ingest" value="&lt;b&gt;INGESTION&lt;/b&gt;&lt;br&gt;Steps 1-6" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="30" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="clean" value="&lt;b&gt;CLEANING&lt;/b&gt;&lt;br&gt;Steps 8-9" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#3CB4E6;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="280" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="enrich" value="&lt;b&gt;ENRICHMENT&lt;/b&gt;&lt;br&gt;Steps 10-12" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#9C27B0;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="530" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="eval" value="&lt;b&gt;EVALUATION&lt;/b&gt;&lt;br&gt;Steps 13-17" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="780" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="deliver" value="&lt;b&gt;DELIVERY&lt;/b&gt;&lt;br&gt;Steps 18-22" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="280" width="120" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="kb" value="&lt;b&gt;KB #793&lt;/b&gt;&lt;br&gt;Upload" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#03234B;fontColor=#FFFFFF;fontSize=10;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="280" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Main flow arrows -->
+        <mxCell id="flow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#333333;strokeWidth=3;" edge="1" source="ingest" target="clean" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#333333;strokeWidth=3;" edge="1" source="clean" target="enrich" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#333333;strokeWidth=3;" edge="1" source="enrich" target="eval" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#333333;strokeWidth=3;" edge="1" source="eval" target="deliver" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="flow5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#333333;strokeWidth=3;" edge="1" source="deliver" target="kb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ ALFRED PDF PATH (ABOVE — Step 7) ═══ -->
+        <mxCell id="alfred-pdf-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FCE4EC;strokeColor=#F44336;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="160" y="60" width="520" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="alfred-pdf-title" value="ALFRED PATH A: PDF Figures (Step 7 — between Ingestion and Cleaning)" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontStyle=1;fontColor=#F44336;" vertex="1" parent="1">
+          <mxGeometry x="180" y="68" width="480" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pdf-render" value="PyMuPDF&lt;br&gt;Render pages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="180" y="100" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="pdf-crop" value="OpenCV&lt;br&gt;Crop figures" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="300" y="100" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="pdf-alfred" value="ALFRED&lt;br&gt;Vision API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="420" y="100" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="pdf-output" value="pdf_image_&lt;br&gt;descriptions.json" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFCDD2;fontColor=#333333;strokeColor=#F44336;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="540" y="100" width="120" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- Alfred PDF arrows -->
+        <mxCell id="ap1" style="rounded=0;strokeColor=#F44336;strokeWidth=2;" edge="1" source="pdf-render" target="pdf-crop" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ap2" style="rounded=0;strokeColor=#F44336;strokeWidth=2;" edge="1" source="pdf-crop" target="pdf-alfred" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ap3" style="rounded=0;strokeColor=#F44336;strokeWidth=2;" edge="1" source="pdf-alfred" target="pdf-output" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Connection: pdf_output → enrichment (inject) -->
+        <mxCell id="pdf-inject" value="inject into&lt;br&gt;files_to_docs_v2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#F44336;strokeWidth=2;dashed=1;fontColor=#F44336;fontSize=8;" edge="1" source="pdf-output" target="enrich" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="600" y="200" />
+              <mxPoint x="590" y="200" />
+              <mxPoint x="590" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Connection from Ingestion to Alfred PDF -->
+        <mxCell id="ingest-pdf" value="PDFs from&lt;br&gt;cloned repos" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#1A238E;strokeWidth=2;dashed=1;fontColor=#1A238E;fontSize=8;" edge="1" source="ingest" target="pdf-render" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="90" y="200" />
+              <mxPoint x="150" y="200" />
+              <mxPoint x="150" y="122" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ═══ ALFRED IMAGES PATH (BELOW — Step 23) ═══ -->
+        <mxCell id="alfred-img-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1A238E;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="400" width="600" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="alfred-img-title" value="ALFRED PATH B: Issue Images (Step 23 — Post-Delivery)" style="text;html=1;align=center;verticalAlign=middle;fontSize=11;fontStyle=1;fontColor=#1A238E;" vertex="1" parent="1">
+          <mxGeometry x="800" y="408" width="560" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="with-images" value="issues_with_&lt;br&gt;images.json" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#E3F2FD;fontColor=#333333;strokeColor=#1A238E;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="810" y="440" width="110" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="img-dl" value="Download&lt;br&gt;screenshots" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1A238E;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="940" y="440" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="img-alfred" value="ALFRED&lt;br&gt;Vision API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F44336;fontColor=#FFFFFF;fontSize=9;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="440" width="100" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="img-replace" value="[IMAGE ATTACHED]&lt;br&gt;→ [IMAGE DESCRIPTION]&lt;br&gt;(in-place)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#4CAF50;fontColor=#FFFFFF;fontSize=9;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="435" width="170" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Alfred Images arrows -->
+        <mxCell id="ai1" style="rounded=0;strokeColor=#1A238E;strokeWidth=2;" edge="1" source="with-images" target="img-dl" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai2" style="rounded=0;strokeColor=#1A238E;strokeWidth=2;" edge="1" source="img-dl" target="img-alfred" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ai3" style="rounded=0;strokeColor=#4CAF50;strokeWidth=2;" edge="1" source="img-alfred" target="img-replace" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Connection: Delivery → with_images -->
+        <mxCell id="deliv-img" value="export_issues_&lt;br&gt;with_images" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#4CAF50;strokeWidth=2;dashed=1;fontColor=#4CAF50;fontSize=8;" edge="1" source="deliver" target="with-images" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1090" y="380" />
+              <mxPoint x="865" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Connection: img-replace → KB -->
+        <mxCell id="img-kb" value="upload&lt;br&gt;enriched" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#03234B;strokeWidth=2;dashed=1;fontColor=#03234B;fontSize=8;" edge="1" source="img-replace" target="kb" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1330" y="530" />
+              <mxPoint x="1330" y="370" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ═══ TIMING ANNOTATIONS ═══ -->
+        <mxCell id="timing1" value="⏱ Step 7 runs BEFORE cleaning&lt;br&gt;(descriptions ready for enrichment)" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontColor=#F44336;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="230" y="160" width="230" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="timing2" value="⏱ Step 23 runs AFTER delivery&lt;br&gt;(modifies final JSON in-place)" style="text;html=1;align=center;verticalAlign=middle;fontSize=9;fontColor=#1A238E;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="500" width="220" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ═══ KEY INSIGHT BOX ═══ -->
+        <mxCell id="insight-bg" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFDE7;strokeColor=#FBC02D;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="30" y="440" width="380" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="insight-title" value="&lt;b&gt;Key Architectural Insight&lt;/b&gt;" style="text;html=1;align=left;fontSize=11;fontColor=#F57F17;" vertex="1" parent="1">
+          <mxGeometry x="45" y="450" width="250" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="insight1" value="• ALFRED operates at TWO different points in the pipeline" style="text;html=1;align=left;fontSize=9;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="45" y="475" width="350" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="insight2" value="• Path A (PDFs): Early — descriptions needed for enrichment" style="text;html=1;align=left;fontSize=9;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="45" y="495" width="350" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="insight3" value="• Path B (Images): Late — operates on final delivery JSON" style="text;html=1;align=left;fontSize=9;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="45" y="515" width="350" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="insight4" value="• Same API, same client, different integration patterns" style="text;html=1;align=left;fontSize=9;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="45" y="535" width="350" height="15" as="geometry" />
+        </mxCell>
+        <mxCell id="insight5" value="• PlaceholderPolicy gate validates BOTH before upload" style="text;html=1;align=left;fontSize=9;fontColor=#333333;" vertex="1" parent="1">
+          <mxGeometry x="45" y="555" width="350" height="15" as="geometry" />
+        </mxCell>
+
+        <!-- Gate -->
+        <mxCell id="gate" value="&lt;b&gt;QUALITY GATE&lt;/b&gt;&lt;br&gt;PlaceholderPolicy&lt;br&gt;Fail / Warn / Off" style="shape=hexagon;whiteSpace=wrap;html=1;fillColor=#FF9800;fontColor=#FFFFFF;fontSize=9;strokeColor=#FF6F00;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="280" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="gate-arr" style="rounded=0;strokeColor=#FF9800;strokeWidth=2;" edge="1" source="deliver" target="gate" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gate-kb" style="rounded=0;strokeColor=#FF9800;strokeWidth=2;" edge="1" source="gate" target="kb" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

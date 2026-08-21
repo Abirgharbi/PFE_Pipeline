@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-05T10:00:00.000Z" agent="STM32Cube PFE" version="21.0.0">
+  <diagram id="tech-evaluation" name="Technical - Evaluation &amp; Validation">
+    <mxGraphModel dx="1400" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="800" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Stage 6: Evaluation &amp; Validation Framework" style="text;html=1;align=center;fontSize=16;fontStyle=1;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="400" y="10" width="500" height="30" as="geometry" />
+        </mxCell>
+        <!-- Schema validation -->
+        <mxCell id="schema_val" value="validate_schemas.py" style="swimlane;startSize=25;fillColor=#ffcdd2;strokeColor=#c62828;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="400" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="sv_detail" value="JSON Schema Gate&#xa;&#xa;Validates against shared/schemas/:&#xa;• docs_issues_v2.schema.json&#xa;• docs_files_v2.schema.json&#xa;• chunks_issues_v2.schema.json&#xa;• chunks_files_v2.schema.json&#xa;&#xa;Checks:&#xa;• Required fields present&#xa;• Field types correct&#xa;• Enum values within allowed set&#xa;• Array min/max items&#xa;&#xa;Exit code ≠ 0 → pipeline fails" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#c62828;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="schema_val">
+          <mxGeometry x="10" y="35" width="380" height="155" as="geometry" />
+        </mxCell>
+        <!-- Stats issues -->
+        <mxCell id="stats_issues" value="test_stats_issues_v2.py" style="swimlane;startSize=25;fillColor=#e1f5fe;strokeColor=#0277bd;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="400" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="si_detail" value="Distribution Analysis:&#xa;&#xa;• Severity distribution (low/med/high/critical)&#xa;• Layer distribution (HAL/LL/MW/BSP/CubeMX)&#xa;• Component top-20 (SPI, I2C, USB, ETH...)&#xa;• Board coverage (% issues with board detected)&#xa;• issue_kind breakdown&#xa;• is_valid ratio (quality gate pass rate)&#xa;• Per-repo stats comparison&#xa;&#xa;Flags:&#xa;• Warns if &gt;30% severity=&quot;unknown&quot;&#xa;• Warns if component detection &lt;50%&#xa;• Reports rescue_applied ratio" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#0277bd;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="stats_issues">
+          <mxGeometry x="10" y="35" width="380" height="175" as="geometry" />
+        </mxCell>
+        <!-- Stats files -->
+        <mxCell id="stats_files" value="test_stats_files_v2.py" style="swimlane;startSize=25;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="560" width="400" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="sf_detail" value="Distribution Analysis:&#xa;&#xa;• file_type distribution (readme/release/source/bsp)&#xa;• Board coverage per repo&#xa;• Component extraction rate&#xa;• Average content length per file_type&#xa;• is_valid ratio&#xa;• Example project coverage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#2e7d32;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="stats_files">
+          <mxGeometry x="10" y="35" width="380" height="135" as="geometry" />
+        </mxCell>
+        <!-- TF-IDF search tests -->
+        <mxCell id="tfidf_issues" value="test_tfidf_search_issues_v2.py" style="swimlane;startSize=25;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="60" width="450" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="ti_detail" value="TF-IDF Retrieval Testing:&#xa;&#xa;1. Load all chunks for a series&#xa;2. Build TF-IDF vectorizer on chunk text&#xa;3. Run test queries (realistic user phrasing):&#xa;   &quot;SPI DMA transfer stuck on STM32F4&quot;&#xa;   &quot;USB CDC not recognized Windows 10&quot;&#xa;   &quot;HAL_Delay returns wrong timing&quot;&#xa;&#xa;4. Retrieve top-K chunks (K=5, 10, 20)&#xa;5. Evaluate:&#xa;   • Does result contain expected issue number?&#xa;   • Is the correct component in top results?&#xa;   • Precision@K for known-good matches&#xa;&#xa;6. Report: per-query scores + aggregate P@5&#xa;&#xa;Threshold: P@5 ≥ 0.6 → PASS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#7b1fa2;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="tfidf_issues">
+          <mxGeometry x="10" y="35" width="430" height="205" as="geometry" />
+        </mxCell>
+        <!-- TF-IDF files -->
+        <mxCell id="tfidf_files" value="test_tfidf_search_files_v2.py" style="swimlane;startSize=25;fillColor=#fff9c4;strokeColor=#f9a825;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="520" y="350" width="450" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="tf_detail" value="File Retrieval Testing:&#xa;&#xa;• Queries target specific HAL APIs:&#xa;  &quot;how to configure SPI in DMA mode&quot;&#xa;  &quot;release notes for STM32CubeF4 v1.27&quot;&#xa;&#xa;• Expected: matching file chunks rank in top-5&#xa;• Tests README retrieval, Release Notes, Examples&#xa;&#xa;• Validates that section-based chunking&#xa;  preserves retrievability of header context" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#f9a825;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="tfidf_files">
+          <mxGeometry x="10" y="35" width="430" height="155" as="geometry" />
+        </mxCell>
+        <!-- Quality gate -->
+        <mxCell id="gate" value="QUALITY GATE&#xa;&#xa;All must pass:&#xa;✓ Schema validation = 0 errors&#xa;✓ Stats: no critical warnings&#xa;✓ TF-IDF P@5 ≥ 0.6&#xa;&#xa;→ Only then proceed to Stage 7 (Delivery)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#1b5e20;fontSize=10;fontStyle=1;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="1">
+          <mxGeometry x="520" y="590" width="450" height="140" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

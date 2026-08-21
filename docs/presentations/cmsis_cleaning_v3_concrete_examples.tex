@@ -1,0 +1,164 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{listings}
+
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  frame=single,
+  rulecolor=\color{black!30}
+}
+
+\title{CMSIS Cleaning V3 - Concrete Removed Content, Method, and RAG Impact}
+\author{STM32Cube Preprocessing Pipeline}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Goal}
+This document answers, with concrete evidence, what is removed from CMSIS \texttt{.h} files by Cleaning V3, how it is removed, and why this improves RAG quality while preserving high-value troubleshooting information.
+
+\section*{Evidence Sources}
+All examples below come from the repository artifacts:
+\begin{itemize}
+  \item \texttt{data/clean_files\_cmsis\_device\_f3.json} (V2 pre-clean representation)
+  \item \texttt{data/clean_files\_cmsis\_device\_f3\_v3.json} (V3 cleaned representation)
+  \item \texttt{data/chunks\_files\_cmsis\_device\_f3\_v2.json} (chunk-level concrete macro snippets)
+  \item \texttt{pipeline/cleaning/clean\_files\_v3.py} (cleaning logic)
+\end{itemize}
+
+\section*{1) Exactly What Was Removed (Concrete)}
+
+\subsection*{A. Repeated legal/banner comment blocks at file top}
+From \texttt{Include/stm32f301x8.h} (V2), the following top block appears and is removed from the retrieval-focused V3 output:
+
+\begin{lstlisting}[language=C]
+/**
+ ******************************************************************************
+ * @file    stm32f301x8.h
+ * @author  MCD Application Team
+ * @brief   CMSIS STM32F301x8 Devices Peripheral Access Layer Header File.
+ *
+ * @attention
+ *
+ * Copyright (c) 2016 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ ******************************************************************************
+ */
+\end{lstlisting}
+
+\textbf{How removed:}
+\begin{itemize}
+  \item Regex-based removal in \texttt{clean\_source\_code()} for comment blocks containing Copyright/ST/Licensed/SPDX.
+  \item Implemented in \texttt{pipeline/cleaning/clean\_files\_v3.py} with \texttt{\_LICENSE\_BLOCK\_RE} and \texttt{\_LICENSE\_LINE\_RE}.
+\end{itemize}
+
+\subsection*{B. Massive repeated bitfield macro series (\_Pos/\_Msk)}
+From \texttt{Include/stm32f301x8.h} chunk evidence (V2):
+
+\begin{lstlisting}[language=C]
+/********************  Bit definition for ADC_ISR register  ********************/
+#define ADC_ISR_ADRDY_Pos              (0U)
+#define ADC_ISR_ADRDY_Msk              (0x1UL << ADC_ISR_ADRDY_Pos)
+#define ADC_ISR_EOSMP_Pos              (1U)
+#define ADC_ISR_EOSMP_Msk              (0x1UL << ADC_ISR_EOSMP_Pos)
+#define ADC_ISR_EOC_Pos                (2U)
+#define ADC_ISR_EOC_Msk                (0x1UL << ADC_ISR_EOC_Pos)
+...
+\end{lstlisting}
+
+\textbf{How removed:}
+\begin{itemize}
+  \item For giant CMSIS headers, V3 does not keep arbitrary \texttt{\#define} macro banks.
+  \item V3 reconstructs a compact representation from 3 kept sections only: IRQ enum, base addresses, and \texttt{\_TypeDef} register structs.
+  \item This behavior is explicit in \texttt{filter\_cmsis\_device\_header()} docstring: drops \texttt{XXX\_Pos} / \texttt{XXX\_Msk} lines.
+\end{itemize}
+
+\subsection*{C. Other generated repeated macro templates}
+Example classes removed with the same rule include repeated GPIO macro families:
+\begin{lstlisting}[language=C]
+#define GPIO_MODER_MODER3_Pos          (6U)
+#define GPIO_MODER_MODER3_Msk          (0x3UL << GPIO_MODER_MODER3_Pos)
+#define GPIO_MODER_MODER3_0            (0x1UL << GPIO_MODER_MODER3_Pos)
+#define GPIO_MODER_MODER3_1            (0x2UL << GPIO_MODER_MODER3_Pos)
+...
+\end{lstlisting}
+
+\section*{2) What Is Kept (to avoid losing important info)}
+For the same file in V3, the kept summary states:
+
+\begin{lstlisting}
+/* CMSIS Device Header - Filtered for RAG relevance */
+/* Original: 698,576 chars, 6,565 #defines */
+/* Kept: IRQ enum, 63 base addresses, 22 peripheral structs */
+\end{lstlisting}
+
+Kept content includes:
+\begin{itemize}
+  \item IRQ vectors: interrupt names and numbers used in debugging and fault triage.
+  \item Base addresses: \texttt{PERIPH\_BASE}, \texttt{GPIOA\_BASE}, etc.
+  \item Register layouts: \texttt{typedef struct ... \_TypeDef;} used for register map understanding.
+\end{itemize}
+
+\section*{3) Quantified Impact}
+Using values embedded in V3 artifacts:
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.1cm} >{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{3.8cm}}
+\toprule
+Header & Original chars & Cleaned chars & Reduction & Kept signal \\
+\midrule
+\endhead
+\texttt{Include/stm32f301x8.h} & 698,576 & 27,567 & 96.05\% & IRQ + 63 BASE + 22 structs \\
+\texttt{Include/stm32f302x8.h} & 1,040,619 & 29,498 & 97.17\% & IRQ + 65 BASE + 25 structs \\
+\bottomrule
+\end{longtable}
+
+\section*{4) RAG Value and Why This Is Defensible}
+\textbf{RAG effect:}
+\begin{itemize}
+  \item Much denser technical evidence per token.
+  \item Fewer false lexical matches caused by repetitive macro banks.
+  \item Better context budget usage for question-relevant signals.
+\end{itemize}
+
+\textbf{Not losing critical information:}
+\begin{itemize}
+  \item High-value troubleshooting anchors are preserved (IRQ/base/register layout).
+  \item Original full source remains reachable via \texttt{github\_url} for deep bit-level investigations.
+  \item If strict bitfield recall is required, a fallback path can query full headers on demand.
+\end{itemize}
+
+\section*{5) One-line Defense Statement (for Jury)}
+\textit{Cleaning V3 does not delete project knowledge; it removes repetitive retrieval noise and keeps the highest-value hardware evidence for faster, more reliable RAG answers.}
+
+\section*{Appendix: Exact Cleaning Logic}
+Implemented in:
+\begin{itemize}
+  \item \texttt{pipeline/cleaning/clean\_files\_v3.py}
+\end{itemize}
+
+Key rules:
+\begin{itemize}
+  \item \texttt{clean\_source\_code()} removes legal/banner boilerplate with regex patterns.
+  \item \texttt{is\_cmsis\_device\_header()} activates giant-header filtering (size threshold 100KB).
+  \item \texttt{filter\_cmsis\_device\_header()} keeps IRQ/base/typedef and drops massive \texttt{\_Pos/\_Msk} banks.
+\end{itemize}
+
+\end{document}

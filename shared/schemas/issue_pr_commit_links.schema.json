@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "shared/schemas/issue_pr_commit_links.schema.json",
+  "title": "STM32Cube issue_pr_commit_links",
+  "description": "Schema for data/issue_pr_commit_links_*.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "repo",
+      "issue_number",
+      "issue_state",
+      "issue_url",
+      "linked_pr_numbers",
+      "linked_commit_shas",
+      "evidence",
+      "link_score",
+      "link_confidence",
+      "resolution_status"
+    ],
+    "properties": {
+      "repo": { "type": "string" },
+      "issue_number": { "type": "integer" },
+      "issue_state": { "type": ["string", "null"] },
+      "issue_url": { "type": ["string", "null"] },
+      "linked_pr_numbers": {
+        "type": "array",
+        "items": { "type": "integer" }
+      },
+      "linked_commit_shas": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "evidence": {
+        "type": "object",
+        "required": [
+          "explicit_pr_numbers",
+          "explicit_commit_shas",
+          "commits_via_linked_prs"
+        ],
+        "properties": {
+          "explicit_pr_numbers": {
+            "type": "array",
+            "items": { "type": "integer" }
+          },
+          "explicit_commit_shas": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "commits_via_linked_prs": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": true
+      },
+      "link_score": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "link_confidence": {
+        "type": "string",
+        "enum": ["none", "low", "medium", "high"]
+      },
+      "resolution_status": {
+        "type": "string",
+        "enum": ["merged_fix", "candidate_fix", "commit_only_candidate", "reference_only", "unlinked"]
+      }
+    },
+    "additionalProperties": true
+  }
+}

@@ -1,0 +1,530 @@
+% =============================================================================
+% Rapport d'Évaluation du Pipeline STM32Cube Preprocessing
+% Auteur : Gharbi Abir — PFE STMicroelectronics 2025
+% =============================================================================
+
+\documentclass[a4paper,12pt]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+
+\geometry{margin=2.5cm}
+
+% --- Couleurs ST ---
+\definecolor{stblue}{HTML}{03234B}
+\definecolor{stlightblue}{HTML}{3CB4E6}
+\definecolor{stgreen}{HTML}{4CAF50}
+\definecolor{storange}{HTML}{FF9800}
+\definecolor{stred}{HTML}{F44336}
+\definecolor{stgray}{HTML}{9E9E9E}
+
+% --- Header/Footer ---
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{stblue}{Pipeline Evaluation — STM32Cube Preprocessing}}
+\fancyhead[R]{\small\textcolor{stgray}{PFE 2025}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=stblue,
+    urlcolor=stlightblue,
+    citecolor=stblue
+}
+
+% --- Chemin images (dossier output) ---
+\graphicspath{{../datasets/07_delivery/st_ready/evaluation_report/}{./}}
+
+% =============================================================================
+\begin{document}
+
+% --- Page de titre ---
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+{\Huge\bfseries\textcolor{stblue}{Rapport d'Évaluation\\du Pipeline de Preprocessing}}\\[1cm]
+{\Large\textcolor{stgray}{STM32Cube GitHub Knowledge Base}}\\[2cm]
+{\large Gharbi Abir}\\[0.5cm]
+{\normalsize Stage PFE — STMicroelectronics, Tunis}\\[0.5cm]
+{\normalsize\textcolor{stgray}{Juin 2025}}\\[3cm]
+\includegraphics[width=0.6\textwidth]{00_pipeline_dashboard.png}
+\vfill
+{\small Document généré automatiquement par \texttt{generate\_evaluation\_report.py}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% =============================================================================
+\section{Introduction}
+% =============================================================================
+
+Ce rapport présente l'évaluation quantitative du pipeline de preprocessing développé dans le cadre du PFE STM32Cube. L'objectif est de mesurer la qualité à chaque étape de la chaîne de traitement, depuis l'ingestion des données brutes jusqu'à la livraison des documents prêts pour la Knowledge Base (KB) du chatbot ST GitHub Analyzer.
+
+\subsection{Architecture du Pipeline}
+
+Le pipeline est composé de 5 stages séquentiels :
+
+\begin{enumerate}
+    \item \textbf{Ingestion} — Récupération des issues GitHub, fichiers (README, Release Notes, BSP docs)
+    \item \textbf{Cleaning} — Nettoyage, classification par couche/sévérité/type, validation
+    \item \textbf{Enrichment} — Conversion en documents structurés, description d'images par Alfred
+    \item \textbf{Similarity} — Calcul des liens entre issues similaires (TF-IDF cosine)
+    \item \textbf{Delivery} — Export ST-ready (issues, files, resolver cases, diagnostic cards)
+\end{enumerate}
+
+\subsection{Métriques et Notation}
+
+Chaque métrique est évaluée en pourcentage et classifiée selon l'échelle suivante :
+
+\begin{equation}
+\text{Score} = \begin{cases}
+    \textcolor{stgreen}{\textbf{EXCELLENT}} & \text{si } p \geq 95\% \\
+    \textcolor{stlightblue}{\textbf{GOOD}} & \text{si } 85\% \leq p < 95\% \\
+    \textcolor{storange}{\textbf{ACCEPTABLE}} & \text{si } 70\% \leq p < 85\% \\
+    \textcolor{stred}{\textbf{POOR}} & \text{si } p < 70\%
+\end{cases}
+\label{eq:score}
+\end{equation}
+
+Les seuils ont été choisis selon les critères de qualité industrielle ST et les exigences minimales pour qu'un document soit exploitable par le moteur de recherche RAG.
+
+% =============================================================================
+\section{Stage 1 : Ingestion}
+% =============================================================================
+
+\subsection{Objectif}
+
+L'ingestion collecte les données brutes depuis les dépôts GitHub STM32Cube via l'API REST. La qualité est mesurée par la \textbf{complétude} des données récupérées.
+
+\subsection{Métriques Calculées}
+
+\begin{table}[H]
+\centering
+\caption{Métriques d'ingestion}
+\label{tab:ingestion}
+\begin{tabular}{>{\raggedright}p{5cm} p{6cm} p{3cm}}
+\toprule
+\textbf{Métrique} & \textbf{Formule} & \textbf{Seuil visé} \\
+\midrule
+Complétude body (issues) & $\displaystyle \frac{|\{i \mid i.\text{body} \neq \emptyset\}|}{N_{\text{issues}}} \times 100$ & $\geq 95\%$ \\[12pt]
+Complétude title (issues) & $\displaystyle \frac{|\{i \mid i.\text{title} \neq \emptyset\}|}{N_{\text{issues}}} \times 100$ & $\geq 99\%$ \\[12pt]
+Présence labels (issues) & $\displaystyle \frac{|\{i \mid i.\text{labels} \neq [\ ]\}|}{N_{\text{issues}}} \times 100$ & $\geq 70\%$ \\[12pt]
+Contenu fichiers & $\displaystyle \frac{|\{f \mid f.\text{content} \neq \emptyset\}|}{N_{\text{files}}} \times 100$ & $\geq 95\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interprétation}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Body} : Une issue sans body ne peut pas être transformée en document utile pour la KB. Un taux $<95\%$ indique des issues automatiquement créées ou des templates vides.
+    \item \textbf{Labels} : Les labels GitHub sont la source primaire pour la classification par couche (HAL, BSP, Middleware). Un taux faible signifie que le nettoyage devra s'appuyer sur des heuristiques textuelles.
+    \item \textbf{Contenu fichiers} : Un fichier vide est inutile. Peut survenir si le fetch échoue (fichier trop large, encodage binaire).
+\end{itemize}
+
+\subsection{Graphique}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{01_ingestion_completeness.png}
+\caption{Complétude des données à l'ingestion}
+\label{fig:ingestion}
+\end{figure}
+
+% =============================================================================
+\section{Stage 2 : Cleaning}
+% =============================================================================
+
+\subsection{Objectif}
+
+Le nettoyage transforme les données brutes en entrées structurées : classification par couche architecturale, sévérité, type d'issue, identification du board et du composant concerné.
+
+\subsection{Métriques Calculées}
+
+\begin{table}[H]
+\centering
+\caption{Métriques de nettoyage}
+\label{tab:cleaning}
+\begin{tabular}{>{\raggedright}p{5cm} p{6cm} p{3cm}}
+\toprule
+\textbf{Métrique} & \textbf{Formule} & \textbf{Seuil visé} \\
+\midrule
+Taux de validité & $\displaystyle \frac{|\{i \mid i.\text{is\_valid} = \text{true}\}|}{N} \times 100$ & $\geq 85\%$ \\[12pt]
+Couverture \texttt{layer} & $\displaystyle \frac{|\{i \mid i.\text{layer} \neq \text{null}\}|}{N} \times 100$ & $\geq 85\%$ \\[12pt]
+Couverture \texttt{severity} & $\displaystyle \frac{|\{i \mid i.\text{severity} \neq \text{null}\}|}{N} \times 100$ & $\geq 80\%$ \\[12pt]
+Couverture \texttt{issue\_kind} & $\displaystyle \frac{|\{i \mid i.\text{issue\_kind} \neq \text{null}\}|}{N} \times 100$ & $\geq 80\%$ \\[12pt]
+Couverture \texttt{board} & $\displaystyle \frac{|\{i \mid i.\text{board} \neq \text{null}\}|}{N} \times 100$ & $\geq 60\%$ \\[12pt]
+Couverture \texttt{component} & $\displaystyle \frac{|\{i \mid i.\text{component} \neq \text{null}\}|}{N} \times 100$ & $\geq 70\%$ \\[12pt]
+Classification fichiers & $\displaystyle \frac{|\{f \mid f.\text{file\_type} \neq \text{"other"}\}|}{N_{\text{files}}} \times 100$ & $\geq 85\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interprétation}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Validité} : Une issue invalide (\texttt{is\_valid=false}) est exclue de la KB. Causes : spam, duplicata, issue non technique.
+    \item \textbf{Layer} : Critique pour le filtrage RAG. Valeurs attendues : \texttt{HAL}, \texttt{BSP}, \texttt{Middleware}, \texttt{Application}, \texttt{CMSIS}. Détecté via labels et mots-clés dans le titre/body.
+    \item \textbf{Severity} : Déterminé par heuristique : présence de mots \textit{crash}, \textit{hardfault} → critical ; \textit{wrong}, \textit{incorrect} → high ; etc.
+    \item \textbf{Board/Component} : Le board est souvent absent car l'utilisateur ne le précise pas. Un seuil de 60\% est réaliste.
+\end{itemize}
+
+\subsection{Graphique}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.99\textwidth]{02_cleaning_validity.png}
+\caption{Couverture de classification et distributions (nettoyage)}
+\label{fig:cleaning}
+\end{figure}
+
+% =============================================================================
+\section{Stage 3 : Enrichment}
+% =============================================================================
+
+\subsection{Objectif}
+
+L'enrichissement convertit les issues/fichiers nettoyés en \textbf{documents structurés} (format V2) avec métadonnées complètes. Une étape critique est la \textbf{description automatique des images} par Alfred (LLM ST interne).
+
+\subsection{Métriques Calculées}
+
+\subsubsection{Couverture métadonnées}
+
+\begin{equation}
+\text{Coverage}_{\text{field}} = \frac{|\{d \mid d.\text{field} \neq \text{null}\}|}{N_{\text{docs}}} \times 100
+\label{eq:enrichment_coverage}
+\end{equation}
+
+Appliquée aux champs : \texttt{layer}, \texttt{board}, \texttt{component}.
+
+\subsubsection{Qualité des descriptions d'images}
+
+\begin{equation}
+\text{ImageSuccessRate} = \frac{N_{\text{images\_described}}}{N_{\text{images\_total}}} \times 100
+\label{eq:image_success}
+\end{equation}
+
+\begin{equation}
+\overline{L}_{\text{desc}} = \frac{1}{N_{\text{described}}} \sum_{i=1}^{N_{\text{described}}} \text{len}(\text{description}_i)
+\label{eq:avg_desc_length}
+\end{equation}
+
+\begin{table}[H]
+\centering
+\caption{Métriques d'enrichissement}
+\label{tab:enrichment}
+\begin{tabular}{>{\raggedright}p{5.5cm} p{5.5cm} p{3cm}}
+\toprule
+\textbf{Métrique} & \textbf{Formule} & \textbf{Seuil visé} \\
+\midrule
+Couverture layer (docs issues) & Eq.~\ref{eq:enrichment_coverage} avec field=layer & $\geq 85\%$ \\
+Couverture board (docs issues) & Eq.~\ref{eq:enrichment_coverage} avec field=board & $\geq 60\%$ \\
+Couverture component (docs issues) & Eq.~\ref{eq:enrichment_coverage} avec field=component & $\geq 70\%$ \\
+Taux de succès images & Eq.~\ref{eq:image_success} & $\geq 85\%$ \\
+Longueur moyenne description & Eq.~\ref{eq:avg_desc_length} & $\geq 100$ chars \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interprétation}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Métadonnées} : Plus le taux est élevé, meilleur sera le filtrage en retrieval. Un document sans \texttt{layer} ne peut pas être ciblé par une requête spécifique HAL/BSP.
+    \item \textbf{Images} : Les images dans les issues contiennent souvent des captures d'erreur, des schémas de connexion, des oscillogrammes. Leur description textuelle permet au RAG de les retrouver. Un échec signifie : URL expirée, image corrompue, ou timeout Alfred.
+    \item \textbf{Longueur description} : Une description $< 50$ caractères est probablement trop générique (\textit{"Screenshot of an error"}). On vise $\geq 100$ caractères pour une description utile.
+\end{itemize}
+
+\subsection{Graphique}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.99\textwidth]{03_enrichment_metadata.png}
+\caption{Couverture métadonnées et succès des descriptions d'images}
+\label{fig:enrichment}
+\end{figure}
+
+% =============================================================================
+\section{Stage 4 : Similarity}
+% =============================================================================
+
+\subsection{Objectif}
+
+Le calcul de similarité identifie les issues traitant de problèmes proches. Cela permet au chatbot de proposer des issues liées et d'améliorer la couverture contextuelle des réponses.
+
+\subsection{Méthode}
+
+L'algorithme utilisé est le \textbf{TF-IDF avec similarité cosinus} :
+
+\begin{enumerate}
+    \item Vectorisation TF-IDF du corpus de documents :
+    \begin{equation}
+        \text{tf-idf}(t, d) = \text{tf}(t,d) \times \log\frac{N}{|\{d' \mid t \in d'\}|}
+    \label{eq:tfidf}
+    \end{equation}
+
+    \item Calcul de la matrice de similarité cosinus :
+    \begin{equation}
+        \text{sim}(d_i, d_j) = \frac{\vec{v}_i \cdot \vec{v}_j}{\|\vec{v}_i\| \times \|\vec{v}_j\|}
+    \label{eq:cosine}
+    \end{equation}
+
+    \item Sélection des $k$ plus proches voisins avec seuil $\theta$ :
+    \begin{equation}
+        \text{related}(d_i) = \{d_j \mid \text{sim}(d_i, d_j) \geq \theta,\ j \neq i\}
+    \label{eq:related}
+    \end{equation}
+\end{enumerate}
+
+\subsection{Métriques Calculées}
+
+\begin{table}[H]
+\centering
+\caption{Métriques de similarité}
+\label{tab:similarity}
+\begin{tabular}{>{\raggedright}p{5.5cm} p{5.5cm} p{3cm}}
+\toprule
+\textbf{Métrique} & \textbf{Formule} & \textbf{Seuil visé} \\
+\midrule
+Couverture (issues avec liens) & $\displaystyle \frac{|\{d \mid |\text{related}(d)| > 0\}|}{N} \times 100$ & $\geq 70\%$ \\[12pt]
+Moyenne liens par document & $\displaystyle \frac{1}{N}\sum_{i=1}^{N} |\text{related}(d_i)|$ & $\geq 2.0$ \\[12pt]
+Maximum liens & $\displaystyle \max_i |\text{related}(d_i)|$ & info \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interprétation}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Couverture} : Un taux $\geq 70\%$ signifie que la majorité des issues ont au moins un lien vers une issue similaire. Les issues isolées (0 liens) sont typiquement très spécifiques ou mal rédigées.
+    \item \textbf{Moyenne} : Une moyenne de $2$--$5$ liens par document est idéale. Trop ($>10$) indique un seuil $\theta$ trop bas ; trop peu ($<1$) un seuil trop restrictif.
+    \item \textbf{Maximum} : Détecte les « hubs » — issues très génériques liées à beaucoup d'autres. À surveiller pour éviter le bruit en retrieval.
+\end{itemize}
+
+\subsection{Graphique}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\textwidth]{04_similarity_coverage.png}
+\caption{Proportion d'issues avec liens de similarité}
+\label{fig:similarity}
+\end{figure}
+
+% =============================================================================
+\section{Stage 5 : Delivery (Export ST-Ready)}
+% =============================================================================
+
+\subsection{Objectif}
+
+La livraison produit les fichiers JSON finaux conformes au schéma attendu par la Knowledge Base ST AI Bridge (KB \#793). Quatre types de documents sont exportés.
+
+\subsection{Types de Documents}
+
+\begin{table}[H]
+\centering
+\caption{Types de documents livrés}
+\label{tab:delivery_types}
+\begin{tabular}{>{\raggedright}p{4cm} p{8cm}}
+\toprule
+\textbf{Type} & \textbf{Description} \\
+\midrule
+\texttt{issues} & Issues GitHub nettoyées et enrichies \\
+\texttt{files} & Documentation technique (README, Release Notes, BSP) \\
+\texttt{resolver\_cases} & Cas de résolution (issue + solution extraite) \\
+\texttt{diagnostic\_cards} & Cartes de diagnostic (symptôme → cause → solution) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Métriques Calculées}
+
+\begin{table}[H]
+\centering
+\caption{Métriques de livraison}
+\label{tab:delivery_metrics}
+\begin{tabular}{>{\raggedright}p{5.5cm} p{5.5cm} p{3cm}}
+\toprule
+\textbf{Métrique} & \textbf{Formule} & \textbf{Seuil visé} \\
+\midrule
+Volume total & $\displaystyle \sum_{\text{type}} N_{\text{type}}$ & $> 0$ \\[8pt]
+Ratio résolveurs/issues & $\displaystyle \frac{N_{\text{resolver}}}{N_{\text{issues}}} \times 100$ & $\geq 30\%$ \\[8pt]
+Ratio cartes/issues & $\displaystyle \frac{N_{\text{diag\_cards}}}{N_{\text{issues}}} \times 100$ & $\geq 20\%$ \\[8pt]
+Conformité schéma & Validé par \texttt{validate\_schemas.py} & 100\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Interprétation}
+
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Volume} : Un volume $=0$ signifie que le stage n'a pas été exécuté ou que les données en entrée sont insuffisantes.
+    \item \textbf{Ratio résolveurs} : Indique combien d'issues ont pu être transformées en cas de résolution (nécessite une réponse ST identifiée dans les commentaires).
+    \item \textbf{Ratio cartes} : Les diagnostic cards sont les documents les plus riches. Un ratio $\geq 20\%$ indique que le pipeline extrait suffisamment de patterns diagnostic.
+    \item \textbf{Conformité schéma} : Doit toujours être à 100\%. Testé par \texttt{pipeline/evaluation/validate\_schemas.py} qui vérifie la présence des champs obligatoires et les types.
+\end{itemize}
+
+\subsection{Graphique}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{05_delivery_volumes.png}
+\caption{Volumes de documents exportés par type}
+\label{fig:delivery}
+\end{figure}
+
+% =============================================================================
+\section{Score Global du Pipeline}
+% =============================================================================
+
+\subsection{Formule du Score Composite}
+
+Le score global est calculé comme la moyenne pondérée des scores de chaque stage :
+
+\begin{equation}
+\boxed{
+S_{\text{global}} = \frac{\sum_{k=1}^{5} w_k \cdot s_k}{\sum_{k=1}^{5} w_k}
+}
+\label{eq:global_score}
+\end{equation}
+
+avec les pondérations :
+
+\begin{table}[H]
+\centering
+\caption{Pondérations des stages}
+\label{tab:weights}
+\begin{tabular}{lcl}
+\toprule
+\textbf{Stage} & \textbf{Poids $w_k$} & \textbf{Justification} \\
+\midrule
+Ingestion & 1.0 & Prérequis, rarement défaillant \\
+Cleaning & 1.5 & Impact direct sur la qualité des documents \\
+Enrichment & 2.0 & Détermine la richesse des métadonnées \\
+Similarity & 1.0 & Amélioration contextuelle, non bloquant \\
+Delivery & 1.5 & Validation finale, conformité KB \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Le score $s_k$ de chaque stage est la \textbf{métrique principale} :
+
+\begin{itemize}
+    \item Ingestion : \texttt{issues\_with\_body\_pct}
+    \item Cleaning : \texttt{issues\_valid\_pct}
+    \item Enrichment : \texttt{images\_success\_pct}
+    \item Similarity : \texttt{with\_related\_pct}
+    \item Delivery : $100\%$ si des documents sont exportés, $0\%$ sinon
+\end{itemize}
+
+\subsection{Dashboard Global}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{00_pipeline_dashboard.png}
+\caption{Dashboard qualité global du pipeline}
+\label{fig:dashboard}
+\end{figure}
+
+% =============================================================================
+\section{Méthodologie de Calcul}
+% =============================================================================
+
+\subsection{Script d'Évaluation}
+
+L'évaluation est réalisée par le script :
+\begin{verbatim}
+python pipeline/evaluation/generate_evaluation_report.py --repo STM32CubeH7
+\end{verbatim}
+
+\subsection{Sources de Données}
+
+\begin{table}[H]
+\centering
+\small
+\caption{Fichiers analysés par stage}
+\label{tab:data_sources}
+\begin{tabular}{ll}
+\toprule
+\textbf{Stage} & \textbf{Fichier source} \\
+\midrule
+Ingestion & \texttt{data/raw\_issues\_<repo>.json}, \texttt{data/raw\_files\_<repo>.json} \\
+Cleaning & \texttt{data/clean\_issues\_<repo>.json}, \texttt{data/clean\_files\_<repo>.json} \\
+Enrichment & \texttt{data/docs\_issues\_<repo>\_v2.json}, \texttt{data/docs\_files\_<repo>\_v2.json} \\
+Similarity & \texttt{data/docs\_issues\_<repo>\_v2\_sim.json} \\
+Delivery & \texttt{datasets/07\_delivery/st\_ready/by\_series/<repo>/} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Reproductibilité}
+
+Les résultats sont \textbf{déterministes} : pour un même jeu de données en entrée, le script produit toujours les mêmes métriques. Aucun appel API externe n'est effectué pendant l'évaluation.
+
+Les graphiques sont générés avec \texttt{matplotlib} (format PNG, 150 DPI) et l'Excel avec \texttt{openpyxl}.
+
+% =============================================================================
+\section{Limitations et Améliorations}
+% =============================================================================
+
+\subsection{Limitations Actuelles}
+
+\begin{enumerate}
+    \item \textbf{Pas de ground truth} : L'évaluation est intrinsèque (mesure de complétude) et non extrinsèque (pas de comparaison à un jeu de référence annoté manuellement).
+    \item \textbf{Qualité vs Quantité} : Le taux de remplissage d'un champ ne garantit pas la justesse de la valeur. Ex : \texttt{layer=HAL} pourrait être mal classifié.
+    \item \textbf{Pas de mesure end-to-end} : La qualité finale du chatbot (pertinence des réponses) n'est pas mesurée ici — elle est couverte par le test suite séparé.
+\end{enumerate}
+
+\subsection{Améliorations Proposées}
+
+\begin{enumerate}
+    \item \textbf{Évaluation extrinsèque} : Annoter manuellement 100 issues (layer, severity, board) et calculer precision/recall de la classification.
+    \item \textbf{Métriques de retrieval} : Mesurer MRR@5, Recall@10 sur le test suite de 50 questions.
+    \item \textbf{Score de qualité textuelle} : Utiliser un score de lisibilité (Flesch-Kincaid) sur les descriptions d'images générées.
+\end{enumerate}
+
+% =============================================================================
+\section{Conclusion}
+% =============================================================================
+
+L'évaluation systématique du pipeline montre que :
+
+\begin{itemize}
+    \item L'\textbf{ingestion} est robuste ($>95\%$ de complétude sur les repos évalués).
+    \item Le \textbf{nettoyage} atteint une bonne couverture de classification mais le champ \texttt{board} reste un point faible.
+    \item L'\textbf{enrichissement} est le stage le plus critique : la qualité des descriptions d'images détermine directement la retrouvabilité des issues visuelles.
+    \item La \textbf{similarité} augmente significativement le contexte disponible pour le RAG.
+    \item La \textbf{livraison} est validée par schéma et produit 4 types de documents complémentaires.
+\end{itemize}
+
+Le score global et les graphiques générés sont directement intégrables dans le rapport PFE pour démontrer la rigueur d'évaluation du pipeline.
+
+% =============================================================================
+\appendix
+\section{Formules Récapitulatives}
+% =============================================================================
+
+\begin{align}
+\text{Pourcentage} &= \frac{n_{\text{satisfaisant}}}{N_{\text{total}}} \times 100 \label{eq:pct} \\[10pt]
+\text{TF-IDF}(t,d) &= \text{tf}(t,d) \times \log\frac{N}{|\{d' : t \in d'\}|} \label{eq:tfidf_app} \\[10pt]
+\text{Cosine Sim}(A,B) &= \frac{A \cdot B}{\|A\| \cdot \|B\|} \label{eq:cosine_app} \\[10pt]
+S_{\text{global}} &= \frac{1.0 \cdot s_1 + 1.5 \cdot s_2 + 2.0 \cdot s_3 + 1.0 \cdot s_4 + 1.5 \cdot s_5}{7.0} \label{eq:global_app}
+\end{align}
+
+\end{document}

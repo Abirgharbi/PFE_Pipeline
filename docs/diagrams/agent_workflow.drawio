@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-11T10:00:00.000Z" agent="Mozilla/5.0" version="21.0.0" type="device">
+  <diagram id="agent-workflow" name="Agentic AI Workflow">
+    <mxGraphModel dx="1100" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- Title -->
+        <mxCell id="title" value="&lt;b&gt;Agentic AI — Image Enrichment Workflow&lt;/b&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="350" y="20" width="350" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Objective -->
+        <mxCell id="objective" value="&lt;b&gt;OBJECTIVE&lt;/b&gt;&lt;br&gt;&quot;For each issue with images,&lt;br&gt;generate a textual description&quot;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="380" y="70" width="220" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Step 1: Scan -->
+        <mxCell id="scan" value="&lt;b&gt;1. SCAN&lt;/b&gt;&lt;br&gt;Find all issues&lt;br&gt;with image attachments" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="400" y="170" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Step 2: Extract -->
+        <mxCell id="extract" value="&lt;b&gt;2. EXTRACT&lt;/b&gt;&lt;br&gt;Get image URLs&lt;br&gt;from issue body" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="400" y="260" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Step 3: Call LLM Vision -->
+        <mxCell id="call" value="&lt;b&gt;3. CALL LLM VISION&lt;/b&gt;&lt;br&gt;Send image to Vision API&lt;br&gt;Get textual description" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="400" y="350" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Decision: Success? -->
+        <mxCell id="decision" value="Success?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="440" y="440" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Error handling -->
+        <mxCell id="error" value="&lt;b&gt;ERROR HANDLING&lt;/b&gt;&lt;br&gt;• Image inaccessible → skip&lt;br&gt;• Rate limit → wait &amp; retry&lt;br&gt;• Timeout → retry 3x" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="650" y="430" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Step 4: Insert -->
+        <mxCell id="insert" value="&lt;b&gt;4. INSERT&lt;/b&gt;&lt;br&gt;Add description to&lt;br&gt;document field" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="400" y="540" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Step 5: Verify -->
+        <mxCell id="verify" value="&lt;b&gt;5. VERIFY&lt;/b&gt;&lt;br&gt;Check coherence&lt;br&gt;of final result" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="400" y="630" width="180" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Loop indicator -->
+        <mxCell id="loop" value="&lt;i&gt;Repeat for each&lt;br&gt;image in each issue&lt;/i&gt;" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="380" width="130" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Agent components sidebar -->
+        <mxCell id="components" value="&lt;b&gt;Agent Components&lt;/b&gt;&lt;hr&gt;&lt;b&gt;Brain:&lt;/b&gt; LLM (reasoning)&lt;br&gt;&lt;b&gt;Tools:&lt;/b&gt; Vision API, File I/O&lt;br&gt;&lt;b&gt;Memory:&lt;/b&gt; Processed images list&lt;br&gt;&lt;b&gt;Loop:&lt;/b&gt; Plan→Act→Observe→Adapt" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="700" y="170" width="210" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows -->
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="objective" target="scan" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="scan" target="extract" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="extract" target="call" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="call" target="decision" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" value="YES" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="decision" target="insert" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" value="NO" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="decision" target="error" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a7" style="edgeStyle=orthogonalEdgeStyle;dashed=1;" edge="1" source="error" target="call" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a8" style="edgeStyle=orthogonalEdgeStyle;" edge="1" source="insert" target="verify" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

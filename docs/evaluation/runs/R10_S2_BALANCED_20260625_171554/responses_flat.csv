@@ -1,0 +1,11 @@
+query_id,query_text,latency_seconds,answer_text,sources_top1,sources_top3,error
+Q001,Q01. DMA transfer on STM32F4 corrupts data when source and destination are in same SRAM bank,60.635,Request Timeout,,,
+Q002,Q14. FDCAN message lost on STM32H5 when using hardware filters in range mode,61.611,Request Timeout,,,
+Q003,Q26. STM32U5 STOP2 current is 50uA instead of expected 2uA,61.082,Request Timeout,,,
+Q004,Q39. SubGHz radio on STM32WL does not transmit despite register configuration matching datasheet,60.348,Request Timeout,,,
+Q005,Q07. SPI DMA circular mode produces gap between frames on STM32F4,60.367,Request Timeout,,,
+Q006,Q20. DMA linked-list mode on H5 creates circular dependency and locks up,60.437,Request Timeout,,,
+Q007,Q31. LPTIMER on U5 does not count during STOP2 with LSE clock,63.314,Request Timeout,,,
+Q008,Q50. STM32WL long-range mode reaches only half the expected outdoor range,60.716,Request Timeout,,,
+Q009,Q13. STM32F4 enters HardFault when accessing backup registers without enabling PWR clock,60.680,Request Timeout,,,
+Q010,Q25. CRC peripheral on H5 produces different result than software implementation,60.325,Request Timeout,,,

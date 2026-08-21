@@ -1,0 +1,11 @@
+query_id,query_text,latency_seconds,answer_text,sources_top1,sources_top3,error
+Q001,Q01. DMA transfer on STM32F4 corrupts data when source and destination are in same SRAM bank,61.490,Request Timeout,,,
+Q002,Q02. USB OTG HS in FS mode drops packets under heavy CDC traffic on STM32F4,60.944,Request Timeout,,,
+Q003,Q03. FreeRTOS tick drift when using TIM as timebase instead of SysTick on F4,60.899,Request Timeout,,,
+Q004,Q04. Ethernet on STM32F407 works initially but stops receiving after several hours,60.709,Request Timeout,,,
+Q005,Q05. ADC multimode dual simultaneous on F4 gives inconsistent readings between ADC1 and ADC2,61.835,Request Timeout,,,
+Q006,Q06. SDIO 4-bit wide bus mode fails on custom board but works on Nucleo,61.499,Request Timeout,,,
+Q007,Q07. SPI DMA circular mode produces gap between frames on STM32F4,61.532,Request Timeout,,,
+Q008,Q08. IWDG resets system during Flash erase on STM32F4,61.948,Request Timeout,,,
+Q009,Q09. CAN bus-off recovery does not complete automatically on STM32F4,62.731,Request Timeout,,,
+Q010,Q10. STM32F4 Discovery board MEMS accelerometer readings have excessive noise,63.640,Request Timeout,,,

@@ -1,0 +1,66 @@
+﻿# Python bytecode
+__pycache__/
+*.py[cod]
+*.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.TemporaryItems/
+.vscode/settings.json
+
+# Cloud sync / transient files
+*.tmp
+*.temp
+*.partial
+*.crdownload
+~$*
+
+# Local clones and runners
+GitHub_repos/
+actions-runner/
+actions-runner.zip
+
+# Generated pipeline artifacts (can exceed GitHub limits)
+data/raw_*.json
+data/clean_*.json
+data/docs_*.json
+data/chunks_*.json
+data/*_sim.json
+data/*.json
+
+# Large dataset folders (regenerable from pipeline)
+datasets/01_raw/
+datasets/02_clean/
+datasets/03_enriched/
+datasets/04_similarity/
+datasets/05_chunked/
+datasets/06_evaluated/
+# by_series/ is tracked via Git LFS (see .gitattributes) - do not ignore
+datasets/07_delivery/st_ready/issues_json/
+datasets/07_delivery/st_ready/files_json/
+datasets/07_delivery/st_ready/resolver_cases_json/
+datasets/07_delivery/st_ready/diagnostic_cards_json/
+
+
+
+# Keep repository memory notes local only
+memories/repo/
+
+# Keep only test suite and summaries in delivery
+!datasets/07_delivery/st_ready/*.csv
+!datasets/07_delivery/st_ready/summary_*.json
+
+
+
+# GitHub repos local clones
+GitHub_repos/
+
+# Local scratch/output directory
+tmp/

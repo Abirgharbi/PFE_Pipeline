@@ -1,0 +1,300 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+
+\title{CI/CD Workflows and End-to-End Architecture Guide\\STM32Cube Preprocessing Project}
+\author{Prepared for project operations and handover}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Purpose}
+This document explains:
+\begin{itemize}
+  \item The process implemented in \texttt{.github/workflows/auto\_update\_kb.yml}
+  \item The process implemented in \texttt{.github/workflows/manual\_auto\_update\_kb.yml}
+  \item The complete execution architecture from trigger to upload
+\end{itemize}
+
+\section{Files in Scope}
+\begin{longtable}{|p{0.30\textwidth}|p{0.62\textwidth}|}
+\hline
+\textbf{File} & \textbf{Role} \\
+\hline
+\texttt{.github/workflows/auto\_update\_kb.yml} & Main automation workflow. Supports scheduled and manual trigger. Contains default values for non-manual events and concurrency protection. \\
+\hline
+\texttt{.github/workflows/manual\_auto\_update\_kb.yml} & Dedicated manual workflow. Triggered only by \texttt{workflow\_dispatch}. Uses explicit user-provided inputs. \\
+\hline
+\texttt{pipeline\_Automation/workflow/Run\_Single\_Series\_Full\_Pipeline\_And\_Upload.ps1} & Core orchestration script called by both workflows for per-series processing and upload. \\
+\hline
+\end{longtable}
+
+\section{Detailed Job Flow (Both Workflows)}
+Both workflows use the same five-job architecture. The job names below match the workflow UI exactly.
+
+\subsection{Job 1: Prepare matrix inputs}
+\textbf{Runs on:} \texttt{ubuntu-latest}
+
+\textbf{Objective:}
+\begin{itemize}
+  \item Read raw workflow inputs
+  \item Normalize series list
+  \item Validate series dynamically from \texttt{shared/config/config\_all\_series.json}
+  \item Export normalized outputs used by downstream jobs
+\end{itemize}
+
+\textbf{Important behavior:}
+\begin{itemize}
+  \item If \texttt{series} is empty, all series from \texttt{all\_series} are selected
+  \item If \texttt{max\_parallel} is empty, fallback is \texttt{1}
+  \item Unsupported series immediately fail this job
+\end{itemize}
+
+\subsection{Job 2: Check self-hosted runner availability}
+\textbf{Runs on:} \texttt{ubuntu-latest}
+
+\textbf{Objective:}
+\begin{itemize}
+  \item Query repository runners via GitHub API
+  \item Compute availability metrics:
+  \texttt{online\_count}, \texttt{idle\_count}, \texttt{busy\_count}
+  \item Produce gate output \texttt{runner\_ready}
+\end{itemize}
+
+\textbf{Availability rule:}
+\begin{itemize}
+  \item \texttt{runner\_ready=true} only if at least one \texttt{self-hosted} runner is both \texttt{online} and \texttt{idle}
+\end{itemize}
+
+\subsection{Job 3: Preprocess <Series> (matrix)}
+\textbf{Job id:} \texttt{preprocess-series}\newline
+\textbf{Runs on:} \texttt{windows-latest}\newline
+\textbf{Timeout:} \texttt{120} minutes
+
+\textbf{Condition:}
+\begin{itemize}
+  \item Runs only if \texttt{runner\_ready == true}
+\end{itemize}
+
+\textbf{What it does:}
+\begin{itemize}
+  \item Checks GitHub API rate-limit quota before ingestion
+  \item Resolves Python executable and installs dependencies
+  \item Calls \texttt{Run\_Single\_Series\_Full\_Pipeline\_And\_Upload.ps1} in \texttt{Prepare} mode
+  \item Uploads produced artifacts as \texttt{st-ready-<series>-<run\_number>}
+\end{itemize}
+
+\subsection{Job 4: Upload <Series> (matrix)}
+\textbf{Job id:} \texttt{upload-series}\newline
+\textbf{Runs on:} \texttt{self-hosted}\newline
+\textbf{Timeout:} \texttt{90} minutes
+
+\textbf{Condition:}
+\begin{itemize}
+  \item Runs only if \texttt{mode != Prepare} and \texttt{runner\_ready == true}
+\end{itemize}
+
+\textbf{What it does:}
+\begin{itemize}
+  \item Downloads preprocess artifact if \texttt{mode == Full}
+  \item Executes Alfred connectivity preflight (proxy/direct)
+  \item Calls orchestration script in \texttt{Upload} mode with selected policies
+\end{itemize}
+
+\subsection{Job 5: Runner unavailable (upload skipped)}
+\textbf{Job id:} \texttt{runner-unavailable-notice}\newline
+\textbf{Runs on:} \texttt{ubuntu-latest}
+
+\textbf{Condition:}
+\begin{itemize}
+  \item Runs only if \texttt{mode != Prepare} and \texttt{runner\_ready != true}
+\end{itemize}
+
+\textbf{What it does:}
+\begin{itemize}
+  \item Writes explicit metrics into Step Summary
+  \item Fails intentionally (\texttt{exit 1}) to make skipped upload visible
+\end{itemize}
+
+This behavior prevents silent green runs when no self-hosted runner is available.
+
+\section{Differences Between the Two Workflow Files}
+\subsection{Auto Workflow: \texttt{auto\_update\_kb.yml}}
+\begin{itemize}
+  \item Triggers: \texttt{schedule}, \texttt{workflow\_dispatch}
+  \item Has defaults for non-manual events via environment variables
+  \item Uses concurrency group:\\
+  \texttt{auto-update-kb-\$\{\{ github.ref \}\}}
+\end{itemize}
+
+\subsection{Manual Workflow: \texttt{manual\_auto\_update\_kb.yml}}
+\begin{itemize}
+  \item Trigger: \texttt{workflow\_dispatch} only
+  \item No schedule-based auto-execution
+  \item Best for controlled on-demand execution by operator
+\end{itemize}
+
+\section{Workflow Inputs and Defaults (If You Do Not Check/Set Anything)}
+\subsection{Manual Run (workflow\_dispatch) Defaults}
+\begin{longtable}{|p{0.24\textwidth}|p{0.11\textwidth}|p{0.12\textwidth}|p{0.45\textwidth}|}
+\hline
+\textbf{Input} & \textbf{Type} & \textbf{Default} & \textbf{Effective behavior if untouched} \\
+\hline
+\texttt{series} & text & empty & Empty means all allowed series from \texttt{shared/config/config\_all\_series.json}. \\
+\hline
+\texttt{mode} & choice & \texttt{Full} & Run preprocess and upload. \\
+\hline
+\texttt{existing\_datasource\_mode} & choice & \texttt{Replace} & Existing datasource content is refreshed. \\
+\hline
+\texttt{skip\_drivers} & boolean & \texttt{false} & Unchecked means driver/subrepo uploads are included. \\
+\hline
+\texttt{skip\_schema\_validation} & boolean & \texttt{false} & Unchecked means schema validation gate is enforced. \\
+\hline
+\texttt{continue\_on\_workflow\_error} & boolean & \texttt{false} & Unchecked means fail fast on workflow error. \\
+\hline
+\texttt{placeholder\_policy} & choice & \texttt{Fail} & Unresolved Alfred placeholders fail the run. \\
+\hline
+\texttt{enable\_issues\_by\_component\_flow} & boolean & \texttt{false} & Unchecked means no component split/upload flow. \\
+\hline
+\texttt{component\_issues\_only} & boolean & \texttt{false} & Unchecked means monolithic issues datasource remains enabled. \\
+\hline
+\texttt{max\_parallel} & text(number) & \texttt{1} & One series job at a time. \\
+\hline
+\end{longtable}
+
+\subsection{Scheduled Auto Run Defaults}
+For scheduled runs (non-manual event), \texttt{auto\_update\_kb.yml} does not read UI checkboxes. It uses internal defaults:
+\begin{itemize}
+  \item \texttt{series=''} $\rightarrow$ all series
+  \item \texttt{mode='Full'}
+  \item \texttt{existing\_datasource\_mode='Replace'}
+  \item \texttt{skip\_drivers=false}
+  \item \texttt{skip\_schema\_validation=false}
+  \item \texttt{continue\_on\_workflow\_error=false}
+  \item \texttt{placeholder\_policy='Fail'}
+  \item \texttt{enable\_issues\_by\_component\_flow=false}
+  \item \texttt{component\_issues\_only=false}
+  \item \texttt{max\_parallel='1'}
+\end{itemize}
+
+\subsection{Mode Interpretation}
+\begin{itemize}
+  \item \texttt{Full}: preprocess + upload
+  \item \texttt{Prepare}: preprocess only (upload job is skipped by condition)
+  \item \texttt{Upload}: upload only (preprocess command is skipped)
+\end{itemize}
+
+\subsection{Single Source of Truth for Series Governance}
+The two workflows and the per-series orchestration script now share one source of truth:
+\texttt{shared/config/config\_all\_series.json}.
+
+\begin{itemize}
+  \item If \texttt{series} input is empty, workflows process all configured series from \texttt{all\_series}
+  \item If \texttt{series} is provided, each code is validated against this dynamic set
+  \item Component scripts also validate from the same config (no static \texttt{ValidateSet})
+\end{itemize}
+
+Operational consequence: adding a new series requires updating central config (and its per-series config file), not editing multiple workflow/script allowlists.
+
+\section{End-to-End Architecture}
+\subsection{Control Plane (GitHub Actions)}
+\begin{enumerate}
+  \item Event trigger (schedule/manual)
+  \item Input preparation and validation
+  \item Self-hosted runner health gate
+  \item Conditional execution or explicit fail-fast notice
+\end{enumerate}
+
+\subsection{Execution Plane (Self-Hosted Runner in ST Network)}
+\begin{enumerate}
+  \item Source checkout and Python environment setup
+  \item Pipeline execution by series:
+  ingestion $\rightarrow$ cleaning $\rightarrow$ enrichment $\rightarrow$ similarity $\rightarrow$ chunking $\rightarrow$ delivery
+  \item ST-ready export generation
+  \item Upload to Knowledge Base via ST-internal endpoint
+\end{enumerate}
+
+\subsection{Data and Artifacts}
+\begin{itemize}
+  \item Input/Intermediate datasets: \texttt{datasets/01\_raw} to \texttt{datasets/07\_delivery}
+  \item KB-ready exports: \texttt{datasets/07\_delivery/st\_ready/by\_series/}
+  \item Optional artifact retention in GitHub Actions for traceability
+\end{itemize}
+
+\section{Execution Scenarios}
+\subsection{Scenario A: Runner Available}
+\begin{itemize}
+  \item Prepare and runner-check succeed
+  \item Per-series processing starts
+  \item Upload is executed
+  \item Run finishes according to script success/failure
+\end{itemize}
+
+\subsection{Scenario B: Runner Unavailable}
+\begin{itemize}
+  \item Prepare succeeds
+  \item Runner check reports zero online+idle runner
+  \item Pipeline job is skipped
+  \item Notice job fails intentionally to signal no processing occurred
+\end{itemize}
+
+\section{Operational Checklist}
+Before running either workflow:
+\begin{enumerate}
+  \item Confirm self-hosted runner is \texttt{Online} in repository settings
+  \item Ensure runner is not busy
+  \item Verify runner environment variables are configured (not workflow secrets):\\
+  \texttt{ST\_GITHUB\_ANALYZER\_API\_KEY} (or \texttt{PERSONA\_API\_KEY} / \texttt{ST\_CHATGPT\_API\_KEY})
+  \item Optional: define \texttt{ST\_REMOTE\_USER}; otherwise the orchestration script default is used
+  \item For manual runs, choose correct series and mode
+\end{enumerate}
+
+\section{Upload Timeout Policy}
+To avoid long blocking waits and unnecessary GitHub minutes consumption, each upload HTTP call is now bounded to\
+\textbf{60 seconds maximum}.
+
+\begin{itemize}
+  \item Implemented in uploader default: \texttt{Add\_Data\_Source\_Files.py} (\texttt{--timeout}=60 by default)
+  \item Enforced by orchestration override in full pipeline script (60s)
+  \item Applied in component upload flow as explicit \texttt{--timeout 60}
+\end{itemize}
+
+\section{Troubleshooting Guide}
+\subsection{Run shows only notice job}
+Cause: no online+idle self-hosted runner.\\
+Action: start runner process/service on the bound machine and rerun.
+
+\subsection{Run button not visible}
+Cause: workflow file missing or invalid on default branch.\\
+Action: ensure valid \texttt{workflow\_dispatch} YAML is present on default branch.
+
+\subsection{Unsupported series error (for example C5)}
+Cause: the series is not declared in \texttt{shared/config/config\_all\_series.json}
+or has no mapped per-series config file.\\
+Action: add \texttt{STM32Cube<Series>} to \texttt{all\_series}, map it in
+\texttt{series\_config\_files}, and create the corresponding
+\texttt{shared/config/config\_<series>.json}.
+
+\subsection{Upload did not happen}
+Cause: pipeline stage did not run (runner gate blocked) or upload stage failed.\\
+Action: inspect \texttt{run-series} logs and PowerShell script output.
+
+\section{Architecture Summary}
+The architecture is intentionally split into:
+\begin{itemize}
+  \item \textbf{Cloud orchestration} (GitHub Actions): trigger, validation, gating, reporting
+  \item \textbf{ST-network execution} (self-hosted runner): preprocessing and KB upload
+\end{itemize}
+This split is required because upload endpoints are not reachable from standard GitHub-hosted runners.
+
+\end{document}

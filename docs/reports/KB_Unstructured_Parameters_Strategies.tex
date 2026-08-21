@@ -1,0 +1,127 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\geometry{margin=2.3cm}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{amsmath}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\title{Parametres Unstructured KB: Strategie Courante, Variantes et Choix Final}
+\author{Projet PFE STM32Cube}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Objectif du document}
+
+Ce document est \textbf{independant} et explique:
+\begin{itemize}
+  \item la configuration courante de la base KB Unstructured,
+  \item les differentes strategies candidates,
+  \item les differences de comportement entre strategies,
+  \item la methode de comparaison pour retenir une strategie finale.
+\end{itemize}
+
+\section{Configuration courante (Current)}
+
+\begin{longtable}{p{5cm}p{9cm}}
+\toprule
+\textbf{Parametre} & \textbf{Valeur courante} \\
+\midrule
+Search type & Hybrid \\
+Semantic threshold & 0.55 \\
+Semantic max doc. count & 25 \\
+Full-text max doc. count & 12 \\
+\bottomrule
+\end{longtable}
+
+\subsection{Signification des parametres}
+
+\begin{itemize}
+  \item \textbf{Search type = Hybrid}: combine la recherche semantique (proximite de sens) et la recherche full-text (correspondance exacte de termes techniques).
+  \item \textbf{Semantic threshold = 0.55}: score minimum pour accepter un document dans la branche semantique.
+  \item \textbf{Semantic max doc. count = 25}: limite superieure des documents semantiques injectes au contexte.
+  \item \textbf{Full-text max doc. count = 12}: limite superieure des documents full-text injectes au contexte.
+\end{itemize}
+
+\section{Effet de chaque levier}
+
+\subsection{Search type}
+\begin{itemize}
+  \item \textbf{Hybrid}: robuste sur questions mixtes (langage naturel + noms d'API/fichiers).
+  \item \textbf{Semantic only}: meilleur sur paraphrases, plus fragile sur identifiants exacts.
+  \item \textbf{Full-text only}: excellent sur correspondances exactes, faible sur reformulations.
+\end{itemize}
+
+\subsection{Semantic threshold}
+\begin{itemize}
+  \item \textbf{Seuil plus bas} (ex: 0.45): augmente le rappel, mais ajoute du bruit.
+  \item \textbf{Seuil plus haut} (ex: 0.65): augmente la precision, mais peut rater des documents utiles.
+\end{itemize}
+
+\subsection{Nombre max de documents}
+\begin{itemize}
+  \item \textbf{Plus de docs semantiques}: meilleure couverture de sens, risque de dilution du contexte.
+  \item \textbf{Plus de docs full-text}: meilleure couverture des tokens exacts (HAL\_, LL\_, fichiers), risque de redondance.
+\end{itemize}
+
+\section{Strategie courante vs strategies alternatives}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{3.4cm}c c c c >{\raggedright\arraybackslash}p{5.2cm}}
+\toprule
+\textbf{Strategie} & \textbf{Search} & \textbf{Sem. thr.} & \textbf{Sem. docs} & \textbf{FT docs} & \textbf{Ce que le changement fait concretement} \\
+\midrule
+S0 Current (Balanced) & Hybrid & 0.55 & 25 & 12 & Point d'equilibre actuel entre precision et rappel. \\
+S1 Recall+ & Hybrid & 0.45 & 35 & 15 & Elargit fortement la collecte; capte plus de cas marginaux mais augmente le bruit. \\
+S2 Precision+ & Hybrid & 0.65 & 18 & 8 & Filtre agressif; moins de bruit mais risque de faux negatifs sur questions implicites. \\
+S3 Semantic-heavy & Hybrid & 0.55 & 35 & 6 & Favorise le sens global; moins d'ancrage exact sur noms d'API/fichiers. \\
+S4 Fulltext-heavy & Hybrid & 0.55 & 15 & 20 & Favorise les correspondances exactes; moins robuste aux reformulations. \\
+S5 Semantic-only & Semantic & 0.55 & 25 & 0 & Supprime l'appui full-text; utile pour ablation, moins robuste en support STM32. \\
+S6 Fulltext-only & Full-text & -- & 0 & 20 & Supprime la branche semantique; performant sur identifiants exacts, faible sur langage naturel. \\
+\bottomrule
+\end{longtable}
+
+\section{Methode de choix final}
+
+La strategie finale est selectionnee sur un protocole unique, applique \textbf{a toutes les strategies} sur le meme jeu de questions:
+\begin{itemize}
+  \item Quality Index global,
+  \item pertinence Top-1/Top-3 des documents,
+  \item taux d'hallucination,
+  \item qualite des citations (verifiabilite),
+  \item latence moyenne de reponse.
+\end{itemize}
+
+\subsection{Regle de decision recommandee}
+
+On retient la strategie qui maximise le Quality Index \textbf{sous contraintes}:
+\begin{equation}
+\text{Choix final} = \arg\max_s\; QI(s)
+\quad \text{s.c.} \quad
+\begin{cases}
+Hallucination(s) \leq H_{max}\\
+Latence(s) \leq L_{max}\\
+Citation\_Quality(s) \geq C_{min}
+\end{cases}
+\end{equation}
+
+\section{Pourquoi la configuration courante est defendable}
+
+La configuration \textbf{Hybrid, 0.55, 25, 12} est defendable car:
+\begin{itemize}
+  \item elle limite le bruit semantique tout en gardant les matches exacts,
+  \item elle couvre le double besoin STM32: concepts + identifiants techniques,
+  \item elle reste stable operationnellement sans saturation excessive du contexte.
+\end{itemize}
+
+\section{Message synthetique pour encadrantes}
+
+\textbf{En une phrase}: la strategie courante est un compromis pragmatique entre rappel, precision et robustesse technique; les variantes servent a quantifier les risques de sur-filtrage (precision+) ou de bruit (recall+), puis a justifier objectivement le choix final par tableau comparatif et metriques communes.
+
+\end{document}

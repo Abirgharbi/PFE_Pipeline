@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-05T10:00:00.000Z" agent="STM32Cube PFE" version="21.0.0">
+  <diagram id="tech-automation" name="Technical - Automation &amp; CI/Upload">
+    <mxGraphModel dx="1500" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Automation Layer - Upload Pipeline &amp; CI" style="text;html=1;align=center;fontSize=16;fontStyle=1;fontColor=#333;" vertex="1" parent="1">
+          <mxGeometry x="450" y="10" width="500" height="30" as="geometry" />
+        </mxCell>
+        <!-- Add_Data_Source_Files.py -->
+        <mxCell id="upload_tool" value="Add_Data_Source_Files.py (Core Upload Tool)" style="swimlane;startSize=25;fillColor=#e1f5fe;strokeColor=#0277bd;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="60" width="500" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ut_detail" value="Parameters:&#xa;  --operation {new|add}        # Create datasource or add files&#xa;  --ds-id ID                   # Target datasource ID&#xa;  --ds-name &quot;Name&quot;             # Name (for --operation new)&#xa;  --processor-params '{...}'   # JSON processor config&#xa;  --json-split-size N          # Split large arrays into N-item parts&#xa;  --empty-json-policy {skip|error}&#xa;  --file path [path ...]       # Input JSON files&#xa;&#xa;Behavior:&#xa;  1. Reads input JSON file(s)&#xa;  2. If --json-split-size: splits array into parts&#xa;  3. Uploads each part as multipart/form-data&#xa;  4. POST to ST AI Bridge API:&#xa;     /chatgpt/api/client-apps/{KB_ID}/data-sources&#xa;  5. Returns datasource ID on success&#xa;&#xa;Rate limiting: sequential uploads, 2s delay between parts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#0277bd;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="upload_tool">
+          <mxGeometry x="10" y="35" width="480" height="235" as="geometry" />
+        </mxCell>
+        <!-- Per-series upload scripts -->
+        <mxCell id="series_scripts" value="Per-Series Upload Wrappers" style="swimlane;startSize=25;fillColor=#fff3e0;strokeColor=#e65100;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="60" width="450" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="ss_detail" value="pipeline_Automation/&#xa;├── upload_f4_files_datasource.py     # --json-split-size 1000&#xa;├── upload_f4_resolver_datasource.py&#xa;├── upload_h5_issues_datasource.py&#xa;├── upload_h5_files_datasource.py&#xa;├── upload_u5_all_datasources.py      # --create-only | --upload-only&#xa;├── upload_wl_all_datasources.py&#xa;├── upload_alfred_issues_all_series.py&#xa;└── create_missing_resolver_datasources.py&#xa;&#xa;Pattern: Python subprocess calls Add_Data_Source_Files.py&#xa;         with correct paths and parameters&#xa;         (avoids PowerShell JSON quoting issues)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#e65100;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="series_scripts">
+          <mxGeometry x="10" y="35" width="430" height="155" as="geometry" />
+        </mxCell>
+        <!-- PowerShell automation -->
+        <mxCell id="ps_scripts" value="PowerShell Automation" style="swimlane;startSize=25;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="600" y="300" width="450" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="ps_detail" value="pipeline_Automation/&#xa;├── Run_Issues_Pipeline_For_All_Repos.ps1&#xa;│   → Loops over all configured repos&#xa;│   → Runs full pipeline per repo&#xa;│&#xa;├── Generate_Diagnostic_Cards_For_All_Repos.ps1&#xa;│   → Re-exports diagnostic cards only&#xa;│&#xa;└── Upload_STReady_New_Batch.ps1&#xa;    → Batch upload all st_ready outputs&#xa;    → Handles split + retry logic" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#2e7d32;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="ps_scripts">
+          <mxGeometry x="10" y="35" width="430" height="135" as="geometry" />
+        </mxCell>
+        <!-- GitHub Actions CI/CD -->
+        <mxCell id="gh_actions" value="GitHub Actions (.github/workflows/auto_update_kb.yml)" style="swimlane;startSize=25;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="400" width="500" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="gha_detail" value="Workflow Stages:&#xa;&#xa;Job 1 (ubuntu-latest):&#xa;1. Checkout → git pull&#xa;2. Setup → pip install -r requirements.txt&#xa;3. Pipeline → run_all_series.py (per series)&#xa;4. Upload artifact → st-ready-delivery&#xa;&#xa;Job 2 (self-hosted):&#xa;5. Download artifact&#xa;6. Delete old datasources&#xa;7. Upload → Add_Data_Source_Files.py (per datasource)&#xa;&#xa;Triggers:&#xa;• Scheduled: bi-weekly (1st &amp; 15th, 03:00 UTC)&#xa;• Manual: workflow_dispatch with series selection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#7b1fa2;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=8;verticalAlign=top;spacingTop=5;" vertex="1" parent="gh_actions">
+          <mxGeometry x="10" y="35" width="480" height="175" as="geometry" />
+        </mxCell>
+        <!-- API connection -->
+        <mxCell id="api_box" value="ST AI Bridge API&#xa;&#xa;Endpoint: https://api-ai-bridge.st.com/chatgpt/api/client-apps&#xa;Auth: clientAppName + apiKey (header)&#xa;KB ID: 793&#xa;&#xa;Operations:&#xa;• POST .../data-sources (create)&#xa;• PUT .../data-sources/{id}/files (add files)&#xa;• GET .../data-sources/{id}/status (check)" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#e8eaf6;strokeColor=#283593;fontSize=9;fontFamily=Courier New;align=left;spacingLeft=15;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="600" y="530" width="450" height="180" as="geometry" />
+        </mxCell>
+        <!-- Arrows -->
+        <mxCell id="a1" style="strokeWidth=2;strokeColor=#0277bd;" edge="1" source="upload_tool" target="api_box" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a2" style="strokeWidth=1.5;strokeColor=#e65100;dashed=1;" edge="1" source="series_scripts" target="upload_tool" parent="1"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
